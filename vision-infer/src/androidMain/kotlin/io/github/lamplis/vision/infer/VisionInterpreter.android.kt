@@ -33,6 +33,11 @@ actual fun loadVisionInterpreter(
     return AndroidVisionInterpreter(bytes, preferAccelerator)
 }
 
+actual fun loadOptimizedModel(
+    model: OptimizedVisionModel,
+    preferAccelerator: Boolean,
+): VisionInterpreter = AndroidVisionInterpreter(model.tfliteBytes, preferAccelerator)
+
 private class AndroidVisionInterpreter(
     modelBytes: ByteArray,
     preferAccelerator: Boolean,

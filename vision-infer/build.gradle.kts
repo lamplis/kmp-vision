@@ -81,3 +81,22 @@ kotlin {
         }
     }
 }
+
+tasks.register<Exec>("convertVisionOnnx") {
+    group = "vision"
+    description = "Convert one ONNX file into float32 TFLite and Core ML models."
+    val script = project.file("../tools/convert_vision_onnx.py")
+    val outDir = layout.buildDirectory.dir("vision-models")
+    val onnx = providers.gradleProperty("visionOnnx")
+    executable = "python3"
+    doFirst {
+        val onnxPath = onnx.orNull ?: throw GradleException("Pass -PvisionOnnx=path/to/model.onnx")
+        args(
+            script.absolutePath,
+            "--onnx",
+            onnxPath,
+            "--out",
+            outDir.get().asFile.absolutePath,
+        )
+    }
+}

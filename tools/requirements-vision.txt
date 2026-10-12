@@ -1,0 +1,4 @@
+onnx==1.17.0
+onnx2tf==1.26.9
+tensorflow==2.18.0
+coremltools==8.2

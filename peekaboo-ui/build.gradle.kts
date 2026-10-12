@@ -76,6 +76,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material)
             implementation(libs.components.resources)
+            api(projects.visionOverlay)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

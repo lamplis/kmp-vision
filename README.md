@@ -1,49 +1,52 @@
 # kmp-vision
-[![Kotlin](https://img.shields.io/badge/kotlin-1.9.23-blue.svg?logo=kotlin)](http://kotlinlang.org)
-[![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-v1.6.2-blue)](https://github.com/JetBrains/compose-multiplatform)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.lamplis/vision-text?color=orange)](https://central.sonatype.com/namespace/io.github.lamplis)
+[![Kotlin](https://img.shields.io/badge/kotlin-2.4.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
+[![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-v1.12.1-blue)](https://github.com/JetBrains/compose-multiplatform)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.lamplis/vision-ocr?color=orange)](https://central.sonatype.com/namespace/io.github.lamplis)
 [![Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-
 [![Build](https://github.com/lamplis/kmp-vision/actions/workflows/ci_check.yml/badge.svg)](https://github.com/lamplis/kmp-vision/actions/workflows/ci_check.yml)
 ![badge-android](http://img.shields.io/badge/platform-android-6EDB8D.svg?style=flat)
 ![badge-ios](http://img.shields.io/badge/platform-ios-CDCDCD.svg?style=flat)
-[![Featured in androidweekly.net](https://img.shields.io/badge/Featured%20in%20androidweekly.net-Issue%20%23601-4998C2)](https://androidweekly.net/issues/issue-601)
-<a href="https://mailchi.mp/kotlinweekly/kotlin-weekly-385"><img alt="Kotlin Weekly" src="https://img.shields.io/badge/Kotlin_Weekly-%23385-purple"/></a>
 
-📂 Kotlin Multiplatform library for Compose Multiplatform, designed for seamless integration of an image picker feature in iOS and Android applications.
+On-device camera, OCR, and models for Compose Multiplatform on Android and iOS.
 
-## Getting started
+## Jump start
 
-### Compose Multiplatform
-
-`peekaboo` is based on `Compose Multiplatform`, currently targeting only `iOS` and `Android`. <br/>
-Please note that it primarily focuses on these platforms, and additional platforms may be considered in the future. <br/>
-When using `peekaboo` on Android, ensure that Google's Jetpack Compose version is compatible with `peekaboo`'s Compose Multiplatform version. <br/>
-
-## Installation
-
-The minimum supported Android SDK is 24 (Android 7.0).
-
-In your `commonMain` configuration, add the desired dependency, either **`peekaboo-ui`** or **`peekaboo-image-picker`**, to your project. Both are available on Maven Central.
-<br/>
-### Without Version Catalog
+One camera dependency draws the preview and the boxes. `LiveFramePump` throttles frames. `createOcr().recognize(jpeg)` reads each JPEG. `VisionOverlay` paints the lines. `strokeColor`, `strokeWidth`, and `labelColor` restyle the chrome. Boxes are top-left: `left`, `top`, `right`, `bottom`.
 
 ```kotlin
-commonMain {
-    dependencies {
-        implementation("io.github.lamplis:vision-camera:0.6.0")
-        implementation("io.github.lamplis:vision-picker:0.6.0")
-        implementation("io.github.lamplis:vision-text:0.6.0")
-        implementation("io.github.lamplis:vision-infer:0.6.0")
-        implementation("io.github.lamplis:vision-session:0.6.0")
+val pump = LiveFramePump { jpeg ->
+    createOcr().recognize(jpeg).flatMap { line ->
+        val box = NormalizedRect(line.boundingBox.left, line.boundingBox.top, line.boundingBox.right, line.boundingBox.bottom)
+        listOf(OverlayShape.Rect(box), OverlayShape.Label(box, line.text))
     }
+}
+val state = rememberPeekabooCameraState(
+    onScannerFrame = { frame ->
+        scope.launch { shapes = pump.onFrame(frame, nowMs) }
+    },
+    onCapture = {},
+)
+Box(Modifier.fillMaxSize()) {
+    PeekabooCamera(
+        state = state,
+        modifier = Modifier.fillMaxSize(),
+        permissionDeniedContent = {},
+    )
+    VisionOverlay(
+        shapes = shapes,
+        modifier = Modifier.fillMaxSize(),
+        strokeColor = Color(0xFF38D9A9),
+        strokeWidth = 3.dp,
+        labelColor = Color.White,
+    )
 }
 ```
 
+![Live OCR on the camera](images/live.gif)
 
-### With Version Catalog
+## Install
 
-First, define the version in `libs.versions.toml`:
+The minimum supported Android SDK is 24 (Android 7.0). Add the artifacts you use. They are on Maven Central.
 
 ```toml
 [versions]
@@ -51,52 +54,101 @@ kmp-vision = "0.6.0"
 
 [libraries]
 vision-camera = { module = "io.github.lamplis:vision-camera", version.ref = "kmp-vision" }
+vision-overlay = { module = "io.github.lamplis:vision-overlay", version.ref = "kmp-vision" }
 vision-picker = { module = "io.github.lamplis:vision-picker", version.ref = "kmp-vision" }
-vision-text = { module = "io.github.lamplis:vision-text", version.ref = "kmp-vision" }
+vision-ocr = { module = "io.github.lamplis:vision-ocr", version.ref = "kmp-vision" }
 vision-infer = { module = "io.github.lamplis:vision-infer", version.ref = "kmp-vision" }
-vision-session = { module = "io.github.lamplis:vision-session", version.ref = "kmp-vision" }
 ```
-
-Then, in your `commonMain` configuration, reference the defined version:
 
 ```kotlin
 commonMain {
     dependencies {
         implementation(libs.vision.camera)
+        implementation(libs.vision.overlay)
         implementation(libs.vision.picker)
-        implementation(libs.vision.text)
+        implementation(libs.vision.ocr)
         implementation(libs.vision.infer)
-        implementation(libs.vision.session)
     }
 }
 ```
 
-### Artifacts
+`vision-camera` already exposes `vision-overlay` on the compile classpath, so a live preview can depend on the camera artifact alone. Depend on `vision-overlay` by itself when you draw boxes and never open the camera.
 
-| Name                    | Description                                                                 |
-|-------------------------|-----------------------------------------------------------------------------|
-| `vision-camera` | Camera preview, torch, `onScannerFrame`, and `PeekabooCameraFrame.toJpeg()`. |
-| `vision-picker` | System image picker. Cancel calls `onResult` with an empty list. |
-| `vision-text` | `createTextRecognizer()` returns text lines with top-left boxes. |
-| `vision-infer` | `loadVisionInterpreter`: `.tflite` bytes on Android, `.mlmodelc` path on iOS. Returns raw tensors. |
-| `vision-session` | `LiveFramePump` and `VisionOverlay` for live results on the preview. |
+## Artifacts
 
-<br/>
+### vision-camera
 
-## Usage
-### Xcode setup
-In order to access the camera on iOS devices, it's essential to include a specific key-value pair in the `Info.plist` file of your iOS project. This key-value pair comprises a key that identifies the type of permission being requested and a value that provides a user-friendly description explaining why the app needs access to the camera.
+`io.github.lamplis:vision-camera` is built by `:peekaboo-ui`. `PeekabooCamera` shows the preview. `rememberPeekabooCameraState` holds the session: `setTorchActive` and `toggleTorch` control the torch, and `capture()` takes a still. Pass `permissionDeniedContent` when camera access is denied. `onScannerFrame` delivers each `PeekabooCameraFrame`. `LiveFramePump` calls `toJpeg()` at most once per `minIntervalMs` (default 300 ms) and passes that JPEG to a `FrameAnalyzer`. The pump lives in `io.github.lamplis.vision.camera`.
 
-Here's the key-value pair you should add to your `Info.plist`:
+![Camera preview](images/camera.jpg)
+
+### vision-overlay
+
+`io.github.lamplis:vision-overlay` is built by `:vision-overlay`. The Kotlin package is `io.github.lamplis.vision.overlay`. `VisionOverlay` draws `OverlayShape.Rect` and `OverlayShape.Label` from top-left normalized boxes. It does not open the camera. Pass `strokeColor`, `strokeWidth`, and `labelColor` to restyle the boxes.
+
+![Detection boxes](images/overlay.jpg)
+
+### vision-picker
+
+`io.github.lamplis:vision-picker` is built by `:peekaboo-image-picker`. The Kotlin package is `com.preat.peekaboo.image.picker`. `rememberImagePickerLauncher` opens the system photo picker for `SelectionMode.Single` or `SelectionMode.Multiple`. The selected images arrive in `onResult`. Dismissing the picker calls `onResult` with an empty list. `ResizeOptions` and `FilterOptions` are available. The samples below show both.
+
+![Photo picker](images/picker.jpg)
+
+### vision-ocr
+
+`io.github.lamplis:vision-ocr` is built by `:vision-ocr`. The Kotlin package is `io.github.lamplis.vision.ocr`. `createOcr()` reads an encoded image and returns `OcrLine`s. Each `boundingBox` is a top-left `NormalizedRect` (`left`, `top`, `right`, `bottom`). Android uses ML Kit text recognition. iOS uses Vision `VNRecognizeTextRequest`. `visionBottomLeftToTopLeft` maps a Vision box into that top-left rect; callers of `createOcr()` already receive top-left boxes. The approach follows [Compose Multiplatform Text Recognition](https://github.com/Amirhosseinijadi/ComposeMultiplatformTextRecognition) by Amirhossein Ijadi. That repository is not copied into this one.
+
+```kotlin
+val recognizer = createOcr()
+val lines = recognizer.recognize(jpeg)
+lines.forEach { line ->
+    val box = line.boundingBox
+    println("${line.text} ${box.left},${box.top} ${box.right},${box.bottom}")
+}
+recognizer.close()
+```
+
+![OCR lines](images/ocr.jpg)
+
+### vision-infer
+
+`io.github.lamplis:vision-infer` is built by `:vision-infer`. The Kotlin package is `io.github.lamplis.vision.infer`. `loadOptimizedModel(OptimizedVisionModel)` picks the file for the current platform when one object holds both the float32 `.tflite` bytes and the `.mlmodelc` directory. `loadVisionInterpreter` loads a model you already have: `ModelFormat.Tflite` plus bytes on Android, `ModelFormat.CoreMl` plus a `.mlmodelc` path on iOS. Both return the same `VisionInterpreter`. Android runs on LiteRT and keeps the GPU only when a short trial is faster than CPU. iOS runs on Core ML and uses the Neural Engine when `preferAccelerator` is true. `run` returns `VisionTensor` values. The app does not load ONNX bytes at runtime. The Models section below shows both ways to supply the files.
+
+## Models
+
+### Keep one ONNX file
+
+Install the converter once, then turn that file into the two models the app loads:
+
+```bash
+pip install -r tools/requirements-vision.txt
+./gradlew :vision-infer:convertVisionOnnx -PvisionOnnx=model.onnx
+```
+
+The task writes `android/<stem>.tflite` and `ios/<stem>.mlmodelc` under `vision-infer/build/vision-models`. Pass both to `loadOptimizedModel`. Android runs the TFLite file on LiteRT and uses the GPU when a short trial is faster than CPU. iOS runs the Core ML bundle on the Neural Engine. The app does not load ONNX bytes at runtime.
+
+### Models you already have
+
+Ship a float32 `.tflite` and a compiled `.mlmodelc` yourself. `loadVisionInterpreter` returns the same `VisionInterpreter` on both platforms. `run` returns `VisionTensor` values. Android still uses LiteRT and keeps the GPU when a short trial is faster than CPU. iOS still uses the Neural Engine when `preferAccelerator` is true. Use `loadOptimizedModel` when one `OptimizedVisionModel` holds both files.
+
+```kotlin
+// Android: float32 .tflite bytes
+loadVisionInterpreter("", ModelFormat.Tflite, tfliteBytes)
+
+// iOS: compiled .mlmodelc directory
+loadVisionInterpreter(mlmodelcPath, ModelFormat.CoreMl, null)
+```
+
+![Model on device](images/model.jpg)
+
+## Camera and picker
+
+Add this key to the iOS `Info.plist` before the preview can open:
+
 ```xml
 <key>NSCameraUsageDescription</key>
 <string>This app uses camera for capturing photos.</string>
 ```
-
-### Custimizable Camera UI
-`PeekabooCamera` is a `composable` function that provides a customizable camera UI within a `Compose Multiplatform` application.
-
-### Simple Camera UI
 
 ```kotlin
 @Composable
@@ -115,63 +167,7 @@ fun CustomCameraView() {
 }
 ```
 
-### Camera UI with overlay
-
-```kotlin
-@Composable
-fun CustomCameraView() {
-    val state = rememberPeekabooCameraState(onCapture = { /* Handle captured images */ })
-    Box(modifier = Modifier.fillMaxSize()) {
-        PeekabooCamera(
-            state = state,
-            modifier = Modifier.fillMaxSize(),
-            permissionDeniedContent = {
-                // Custom UI content for permission denied scenario
-            },
-        )
-        // Draw here UI you need with provided state
-        YourCameraOverlay(
-            state = state,
-            modifier = Modifier.fillMaxSize(),
-        )
-    }
-}
-```
-- **`state`** : The `PeekabooCameraState` to control camera.
-- **`permissionDeniedContent`** : An optional `composable` lambda that provides content to be displayed when camera permission is denied. This allows users to define a custom UI to inform or guide the user when camera access has been denied. The content can be informative text, an image, a button to redirect the user to settings, or any other `composable` content. This lambda will be invoked within the `PeekabooCamera` composable scope, replacing the camera preview with the user-defined UI.
-
-### Camera state
-
-```kotlin
-rememberPeekabooCameraState(
-    initialCameraMode: CameraMode = CameraMode.Back,
-    onCapture: (ByteArray?) -> Unit,
-)
-```
-- **`initialCameraMode`** : The initial camera mode (front or back). Default is [CameraMode.Back]. Changes does not affect state. To toggle use [PeekabooCameraState.toggleCamera]
-- **`onCapture`** : A lambda called when a photo is captured, providing the photo as a ByteArray or null if the capture fails.
-- **`PeekabooCameraState.isCameraReady`** : True if camera already available for show
-- **`PeekabooCameraState.isCapturing`** : True if camera is in progress of capture
-- **`PeekabooCameraState.cameraMode`** : Current camera mode (front or back)
-
-
-#### Capturing an Image from Camera
-| Android                                                         | iOS                                                     |
-|-----------------------------------------------------------------|---------------------------------------------------------|
-| <img src="https://github.com/onseok/onseok/assets/76798309/897a0104-2e8d-4339-90fb-2f61807aa56d" width="300" height="700"> | <img src="https://github.com/onseok/onseok/assets/76798309/fe414cc2-370a-4b0d-9558-c60e1fbbb4f7" width="300" height="700"> |
-
-#### Toggling Camera Mode Between Front and Back
-| Android                                                         | iOS                                                     |
-|-----------------------------------------------------------------|---------------------------------------------------------|
-| <img src="https://github.com/onseok/onseok/assets/76798309/477f49f8-389d-4ba6-a2d1-60155cab355e" width="300" height="700"> | <img src="https://github.com/onseok/onseok/assets/76798309/022da284-cf58-4ce0-9fc1-e592885f09b9" width="300" height="700"> |
-
-#### Handling Denied Camera Permissions
-| Android                                                         | iOS                                                     |
-|-----------------------------------------------------------------|---------------------------------------------------------|
-| <img src="https://github.com/onseok/onseok/assets/76798309/61511ec6-45b9-48bd-9267-fe9f2a086008" width="300" height="700"> | <img src="https://github.com/onseok/onseok/assets/76798309/604ed9d9-d6e0-47ac-9393-5cb627a4f13d" width="300" height="700"> |
-
-
-### Select Single Image
+`state` is the `PeekabooCameraState` that controls the camera. `permissionDeniedContent` replaces the preview when camera access is denied.
 
 ```kotlin
 val scope = rememberCoroutineScope()
@@ -181,64 +177,30 @@ val singleImagePicker = rememberImagePickerLauncher(
     scope = scope,
     onResult = { byteArrays ->
         byteArrays.firstOrNull()?.let {
-            // Process the selected images' ByteArrays.
             println(it)
         }
     }
 )
 
-Button(
-    onClick = {
-        singleImagePicker.launch()
-    }
-) {
+Button(onClick = { singleImagePicker.launch() }) {
     Text("Pick Single Image")
 }
 ```
 
-| Android                                                         | iOS                                                     |
-|-----------------------------------------------------------------|---------------------------------------------------------|
-| <img src="https://github.com/TEAM-PREAT/peekaboo/assets/76798309/03346992-cf2a-4424-88e5-fa53afd36eac" width="300" height="700"> | <img src="https://github.com/TEAM-PREAT/peekaboo/assets/76798309/7b562f6f-e5d5-4858-85b8-acf7196d646f" width="300" height="700"> |
-
-Simply select the desired image with an intuitive interface.
-
-<br/>
-
-### Select Multiple Images
-
-If you want to select multiple images, you can use `SelectionMode.Multiple()`. And you can set the maximum number of images to select.
-If you didn't set max selection, the default value is maximum number that the system supports.
-
 ```kotlin
-val scope = rememberCoroutineScope()
-
 val multipleImagePicker = rememberImagePickerLauncher(
-    // Optional: Set a maximum selection limit, e.g., SelectionMode.Multiple(maxSelection = 5).
-    // Default: No limit, depends on system's maximum capacity.
     selectionMode = SelectionMode.Multiple(maxSelection = 5),
-    scope = scope,
+    scope = rememberCoroutineScope(),
     onResult = { byteArrays ->
-        byteArrays.forEach {
-            // Process the selected images' ByteArrays.
-            println(it)
-        }
+        byteArrays.forEach { println(it) }
     }
 )
 
-Button(
-    onClick = {
-        multipleImagePicker.launch()
-    }
-) {
+Button(onClick = { multipleImagePicker.launch() }) {
     Text("Pick Multiple Images")
 }
 ```
 
-| Android                                                         | iOS                                                     |
-|-----------------------------------------------------------------|---------------------------------------------------------|
-| <img src="https://github.com/TEAM-PREAT/peekaboo/assets/76798309/e26ae1b3-4333-41a9-92c3-ebe56c337d79" width="300" height="700"> | <img src="https://github.com/TEAM-PREAT/peekaboo/assets/76798309/a990ce09-d485-4a0f-9416-8af8b040cf2d" width="300" height="700"> |
-
-<br/>
 
 ## Image Resizing Options
 `peekaboo` offers customizable resizing options for both single and multiple image selections, along with a new feature to resize images only if they exceed a certain file size. <br/>

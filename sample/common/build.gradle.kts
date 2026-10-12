@@ -62,8 +62,7 @@ kotlin {
                 // peekaboo
                 implementation(projects.peekabooImagePicker)
                 implementation(projects.peekabooUi)
-                implementation(projects.visionText)
-                implementation(projects.visionSession)
+                implementation(projects.visionOcr)
             }
         }
     }

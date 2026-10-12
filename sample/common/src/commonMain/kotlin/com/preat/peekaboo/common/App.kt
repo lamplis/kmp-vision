@@ -58,14 +58,14 @@ import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
 import com.preat.peekaboo.image.picker.toImageBitmap
 import com.preat.peekaboo.ui.camera.PeekabooCamera
 import com.preat.peekaboo.ui.camera.rememberPeekabooCameraState
-import io.github.lamplis.vision.session.FrameAnalyzer
-import io.github.lamplis.vision.session.LiveFramePump
-import io.github.lamplis.vision.session.OverlayShape
-import io.github.lamplis.vision.session.VisionOverlay
-import io.github.lamplis.vision.text.createTextRecognizer
+import io.github.lamplis.vision.camera.FrameAnalyzer
+import io.github.lamplis.vision.camera.LiveFramePump
+import io.github.lamplis.vision.ocr.createOcr
+import io.github.lamplis.vision.overlay.OverlayShape
+import io.github.lamplis.vision.overlay.VisionOverlay
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
-import io.github.lamplis.vision.session.NormalizedRect as OverlayRect
+import io.github.lamplis.vision.overlay.NormalizedRect as OverlayRect
 
 @Composable
 fun App() {
@@ -233,7 +233,7 @@ private fun ReadTextPage(
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
-    val recognizer = remember { createTextRecognizer() }
+    val recognizer = remember { createOcr() }
     DisposableEffect(recognizer) {
         onDispose { recognizer.close() }
     }

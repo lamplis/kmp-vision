@@ -45,3 +45,15 @@ expect fun loadVisionInterpreter(
     bytes: ByteArray?,
     preferAccelerator: Boolean = true,
 ): VisionInterpreter
+
+data class OptimizedVisionModel(
+    val tfliteBytes: ByteArray,
+    val coreMlDirectory: String,
+)
+
+expect fun loadOptimizedModel(
+    model: OptimizedVisionModel,
+    preferAccelerator: Boolean = true,
+): VisionInterpreter
+
+fun convertedModelRelativePaths(stem: String): Pair<String, String> = "android/$stem.tflite" to "ios/$stem.mlmodelc"

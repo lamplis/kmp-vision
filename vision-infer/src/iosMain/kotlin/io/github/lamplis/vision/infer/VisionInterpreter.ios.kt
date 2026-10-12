@@ -44,6 +44,11 @@ actual fun loadVisionInterpreter(
     return IosVisionInterpreter(bytesOrPath, preferAccelerator)
 }
 
+actual fun loadOptimizedModel(
+    model: OptimizedVisionModel,
+    preferAccelerator: Boolean,
+): VisionInterpreter = IosVisionInterpreter(model.coreMlDirectory, preferAccelerator)
+
 @OptIn(ExperimentalForeignApi::class)
 private class IosVisionInterpreter(
     modelPath: String,

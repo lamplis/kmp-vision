@@ -45,9 +45,9 @@ rootProject.name = "kmp-vision"
 include(
     ":peekaboo-ui",
     ":peekaboo-image-picker",
-    ":vision-text",
+    ":vision-overlay",
+    ":vision-ocr",
     ":vision-infer",
-    ":vision-session",
     ":sample:android",
     ":sample:common",
 )
