@@ -60,9 +60,9 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
 
-                // peekaboo
-                implementation(projects.peekabooImagePicker)
-                implementation(projects.peekabooUi)
+                // kmp-vision
+                implementation(projects.visionPicker)
+                implementation(projects.visionCamera)
                 implementation(projects.visionOcr)
             }
         }

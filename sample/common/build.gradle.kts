@@ -24,7 +24,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "com.preat.peekaboo.sample.common"
+        namespace = "io.github.lamplis.vision.sample"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         compilerOptions {
@@ -59,9 +59,10 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
 
-                // peekaboo
-                implementation(projects.peekabooImagePicker)
-                implementation(projects.peekabooUi)
+                // kmp-vision
+                implementation(projects.visionPicker)
+                implementation(projects.visionCamera)
+                implementation(projects.visionGallery)
                 implementation(projects.visionOcr)
             }
         }

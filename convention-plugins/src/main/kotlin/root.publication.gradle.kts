@@ -15,6 +15,6 @@
  */
 
 allprojects {
-    group = "io.github.lamplis"
-    version = "0.6.0"
+    group = rootProject.providers.gradleProperty("group").get()
+    version = rootProject.providers.gradleProperty("version").get()
 }

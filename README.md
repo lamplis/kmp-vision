@@ -20,9 +20,11 @@ Real screenshots from the shared Vision Lab tutorial, using ML Kit on Android an
 
 Platform permissions, application setup, and inference model assets still need platform-specific configuration. See the documentation for supported behavior and integration requirements.
 
-## Built in the open
+## Thanks
 
-Maintained by [lamplis](https://github.com/lamplis). KMP-Vision builds on Peekaboo by onseok and contributors; the OCR approach also draws inspiration from Amirhossein Ijadi’s Compose Multiplatform Text Recognition. See [project origins and contribution guidance](https://lamplis.github.io/kmp-vision/contributing/).
+kmp-vision is a fork of [Peekaboo](https://github.com/onseok/peekaboo) by onseok. Peekaboo is no longer maintained, so this project continues that camera and image-picker work. Thanks to onseok and TEAM-PREAT for the original library.
+
+The OCR approach also draws inspiration from Amirhossein Ijadi’s Compose Multiplatform Text Recognition. Maintained by [lamplis](https://github.com/lamplis). See [project origins and contribution guidance](https://lamplis.github.io/kmp-vision/contributing/).
 
 ## License
 

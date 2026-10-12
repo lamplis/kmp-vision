@@ -40,16 +40,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.preat.peekaboo.image.picker.SelectionMode
-import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
-import com.preat.peekaboo.image.picker.toImageBitmap
-import com.preat.peekaboo.ui.camera.PeekabooCamera
-import com.preat.peekaboo.ui.camera.rememberPeekabooCameraState
+import io.github.lamplis.vision.camera.VisionCamera
+import io.github.lamplis.vision.camera.rememberVisionCameraState
 import io.github.lamplis.vision.ocr.OcrLine
 import io.github.lamplis.vision.ocr.createOcr
 import io.github.lamplis.vision.overlay.NormalizedRect
 import io.github.lamplis.vision.overlay.OverlayShape
 import io.github.lamplis.vision.overlay.VisionOverlay
+import io.github.lamplis.vision.picker.SelectionMode
+import io.github.lamplis.vision.picker.rememberImagePickerLauncher
+import io.github.lamplis.vision.picker.toImageBitmap
 import io.github.lamplis.vision.tutorial.resources.Res
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -124,7 +124,7 @@ fun VisionTutorial(
         Surface(color = Ink, modifier = Modifier.fillMaxSize().background(Ink).windowInsetsPadding(WindowInsets.safeDrawing)) {
             if (camera) {
                 val state =
-                    rememberPeekabooCameraState(onCapture = { image ->
+                    rememberVisionCameraState(onCapture = { image ->
                         image?.let {
                             bytes = it
                             lines = emptyList()
@@ -133,7 +133,7 @@ fun VisionTutorial(
                         camera = false
                     })
                 Box(Modifier.fillMaxSize()) {
-                    PeekabooCamera(state = state, modifier = Modifier.fillMaxSize(), permissionDeniedContent = {
+                    VisionCamera(state = state, modifier = Modifier.fillMaxSize(), permissionDeniedContent = {
                         Text("Camera permission is required. Enable it in Settings.", modifier = Modifier.padding(32.dp))
                     })
                     Row(Modifier.fillMaxWidth().padding(24.dp), horizontalArrangement = Arrangement.SpaceBetween) {

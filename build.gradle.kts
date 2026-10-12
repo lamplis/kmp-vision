@@ -24,6 +24,11 @@ plugins {
     alias(libs.plugins.spotless)
 }
 
+subprojects {
+    group = rootProject.group
+    version = rootProject.version
+}
+
 spotless {
     kotlin {
         target("**/*.kt")

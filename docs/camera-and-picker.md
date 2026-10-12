@@ -10,8 +10,8 @@ Add this key to the iOS `Info.plist` before the preview can open:
 ```kotlin
 @Composable
 fun CustomCameraView() {
-    val state = rememberPeekabooCameraState(onCapture = { /* Handle captured images */ })
-    PeekabooCamera(
+    val state = rememberVisionCameraState(onCapture = { /* Handle captured images */ })
+    VisionCamera(
         state = state,
         modifier = Modifier.fillMaxSize(),
         permissionDeniedContent = {
@@ -24,7 +24,7 @@ fun CustomCameraView() {
 }
 ```
 
-`state` is the `PeekabooCameraState` that controls the camera. `permissionDeniedContent` replaces the preview when camera access is denied.
+`state` is the `VisionCameraState` that controls the camera. `permissionDeniedContent` replaces the preview when camera access is denied.
 
 ```kotlin
 val scope = rememberCoroutineScope()

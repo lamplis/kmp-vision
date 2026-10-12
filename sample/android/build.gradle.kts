@@ -20,14 +20,14 @@ plugins {
 }
 
 android {
-    namespace = "com.preat.peekaboo.android"
+    namespace = "io.github.lamplis.vision.sample"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.compileSdk.get().toInt()
 
-        applicationId = "com.preat.peekaboo.android"
+        applicationId = "io.github.lamplis.vision.sample"
         versionCode = 1
         versionName = "1.0"
     }

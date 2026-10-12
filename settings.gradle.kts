@@ -43,8 +43,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "kmp-vision"
 include(
-    ":peekaboo-ui",
-    ":peekaboo-image-picker",
+    ":vision-camera",
+    ":vision-gallery",
+    ":vision-picker",
     ":vision-overlay",
     ":vision-ocr",
     ":vision-infer",

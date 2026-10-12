@@ -20,9 +20,11 @@ Clone KMP-Vision alongside your application. In your application's `settings.gra
 includeBuild("../kmp-vision") {
     dependencySubstitution {
         substitute(module("io.github.lamplis:vision-camera"))
-            .using(project(":peekaboo-ui"))
+            .using(project(":vision-camera"))
+        substitute(module("io.github.lamplis:vision-gallery"))
+            .using(project(":vision-gallery"))
         substitute(module("io.github.lamplis:vision-picker"))
-            .using(project(":peekaboo-image-picker"))
+            .using(project(":vision-picker"))
         substitute(module("io.github.lamplis:vision-overlay"))
             .using(project(":vision-overlay"))
         substitute(module("io.github.lamplis:vision-ocr"))
@@ -41,6 +43,7 @@ commonMain.dependencies {
     implementation("io.github.lamplis:vision-overlay:0.6.0")
     // Optional:
     // implementation("io.github.lamplis:vision-camera:0.6.0")
+    // implementation("io.github.lamplis:vision-gallery:0.6.0")
     // implementation("io.github.lamplis:vision-picker:0.6.0")
     // implementation("io.github.lamplis:vision-infer:0.6.0")
 }
@@ -55,8 +58,9 @@ Here the composite build resolves these coordinates to your local checkout. `0.6
 
 | Artifact | Source module | Purpose |
 | --- | --- | --- |
-| `vision-camera` | `:peekaboo-ui` | Compose camera UI and analysis frames |
-| `vision-picker` | `:peekaboo-image-picker` | System image selection |
+| `vision-camera` | `:vision-camera` | Compose camera UI and analysis frames |
+| `vision-gallery` | `:vision-gallery` | Device photo gallery |
+| `vision-picker` | `:vision-picker` | System image selection |
 | `vision-overlay` | `:vision-overlay` | Rectangles and labels |
 | `vision-ocr` | `:vision-ocr` | Native text recognition |
 | `vision-infer` | `:vision-infer` | Compatible on-device models |

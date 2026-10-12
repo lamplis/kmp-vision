@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.preat.peekaboo.android">
+    package="io.github.lamplis.vision.sample">
 
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission
@@ -9,12 +9,12 @@
         android:maxSdkVersion="32" />
 
     <application
-        android:label="peekaboo"
+        android:label="Vision Sample"
         android:allowBackup="false"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
-            android:name="com.preat.peekaboo.sample.MainActivity"
+            android:name="io.github.lamplis.vision.sample.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

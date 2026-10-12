@@ -1,6 +1,6 @@
 # Picker
 
-`io.github.lamplis:vision-picker` is built by `:peekaboo-image-picker`. The Kotlin package is `com.preat.peekaboo.image.picker`. `rememberImagePickerLauncher` opens the system photo picker for `SelectionMode.Single` or `SelectionMode.Multiple`. The selected images arrive in `onResult`. Dismissing the picker calls `onResult` with an empty list. `ResizeOptions` and `FilterOptions` are available. The samples below show both.
+`io.github.lamplis:vision-picker` is built by `:vision-picker`. The Kotlin package is `io.github.lamplis.vision.picker`. `rememberImagePickerLauncher` opens the system photo picker for `SelectionMode.Single` or `SelectionMode.Multiple`. The selected images arrive in `onResult`. Dismissing the picker calls `onResult` with an empty list. `ResizeOptions` and `FilterOptions` are available. The samples below show both.
 
 ![System image picker opened from Vision Lab on Android](images/picker.png){ .guide-preview }
 
