@@ -6,9 +6,9 @@ Camera previews, on-device OCR, image picking, visual overlays, and model infere
 
 [Documentation](https://lamplis.github.io/kmp-vision/) · [Run the tutorial](tutorial/README.md) · [Installation](https://lamplis.github.io/kmp-vision/install/)
 
-![Vision Lab running on Android and iOS](docs/images/tutorial-platforms.png)
+![Android and iPhone object-recognition concept](docs/images/phones-vision-concept.webp)
 
-Real screenshots from the shared Vision Lab tutorial, using ML Kit on Android and Apple Vision on iOS.
+AI-generated concept illustration. Object detection requires your own compatible model and integration. For real native OCR screenshots and a working example, [run Vision Lab](tutorial/README.md).
 
 ## Choose your building blocks
 

@@ -21,8 +21,8 @@ KMP-Vision brings camera previews, text recognition, image picking, visual overl
 </div>
 
 <figure class="vision-showcase">
-  <img src="images/tutorial-platforms.png" alt="Vision Lab running the same shared OCR screen on Android and iOS, with real recognition boxes and extracted text." width="1440" height="1100" fetchpriority="high">
-  <figcaption>One shared tutorial, running on two platforms. Real ML Kit and Apple Vision results from the bundled sample image.</figcaption>
+  <img src="images/phones-vision-concept.webp" alt="Concept illustration of an Android phone and an iPhone with Dynamic Island identifying a plant, cup, and notebook." width="1536" height="1024" fetchpriority="high">
+  <figcaption>One shared vision, two familiar platforms. AI-generated concept illustration; object detection requires your own compatible model and integration.</figcaption>
 </figure>
 
 ## Less platform plumbing. More product.
@@ -48,6 +48,37 @@ A camera feature is more than a preview. You need to get an image, analyze it, t
     Use OCR on its own, add overlays to an existing screen, or combine the camera and picker. The library is split into focused modules.
 
 </div>
+
+## Give your camera a vocabulary
+
+Point at a desk. Find the notebook. Highlight the headphones. Turn a camera frame into something your app can act on.
+
+Imagine a workspace assistant that helps someone find an item, a cataloguing tool that turns a photo into a reviewable list, or a camera experience that answers **“What is on this desk?”** The product starts with what the user wants to do; the model supplies information your shared Kotlin code can turn into an interface.
+
+<figure class="vision-showcase">
+  <img src="images/object-recognition-concept.webp" alt="Invented Android and iPhone vision experience highlighting everyday objects and answering a question about the scene; the iPhone Dynamic Island is visible." width="1536" height="1024" loading="lazy">
+  <figcaption>Imagine the experience: identify objects, then help someone act. AI-generated concept, with illustrative detections and answers.</figcaption>
+</figure>
+
+<div class="grid cards" markdown>
+
+-   **Point**
+
+    Bring an image into your shared workflow from the camera or system picker.
+
+-   **Recognize**
+
+    Run your compatible model, interpret its outputs, and highlight the objects that matter with Compose overlays.
+
+-   **Respond**
+
+    Turn results into a useful action: select an item, review a list, or explore a scene through a separately integrated vision-language experience.
+
+</div>
+
+**Build the experience around your model.** KMP-Vision supplies camera, tensor-inference, and overlay building blocks. It does not bundle an object detector or an LLM/vision-language model. Object recognition needs a compatible model and its preprocessing and output decoding; visual question answering needs an additional model/runtime or service integration.
+
+[Explore object recognition and vision-language app concepts →](models.md)
 
 ## From image to useful information
 
