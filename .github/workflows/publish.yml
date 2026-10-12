@@ -21,7 +21,7 @@ jobs:
           cache: gradle
 
       - name: Assemble
-        run: ./gradlew assemble
+        run: ./gradlew :vision-camera:assemble :vision-gallery:assemble :vision-picker:assemble :vision-overlay:assemble :vision-ocr:assemble :vision-infer:assemble
 
       - name: Publish to Maven Central
         run: ./gradlew publishToMavenCentral
