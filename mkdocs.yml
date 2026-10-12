@@ -1,0 +1,37 @@
+site_name: kmp-vision
+site_url: https://lamplis.github.io/kmp-vision/
+site_description: On-device camera, OCR, and models for Compose Multiplatform on Android and iOS.
+repo_url: https://github.com/lamplis/kmp-vision
+repo_name: lamplis/kmp-vision
+docs_dir: docs
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - content.code.copy
+    - search.suggest
+
+nav:
+  - Jump start: index.md
+  - Install: install.md
+  - Camera: camera.md
+  - Overlay: overlay.md
+  - Picker: picker.md
+  - OCR: ocr.md
+  - Models: models.md
+  - Camera and picker: camera-and-picker.md
