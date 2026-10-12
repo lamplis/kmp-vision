@@ -30,3 +30,25 @@
 @media(max-width: 600px) { .md-typeset .vision-hero h1 { font-size: 2.4rem; } }
 
 .md-typeset img.camera-feature-preview { display: block; height: 22rem; width: auto; max-width: 100%; object-fit: contain; margin: 1rem auto; border-radius: .5rem; }
+
+/* Shared outline icons: decorative, with adjacent readable feature labels. */
+.vision-icon { display: inline-block; width: 1.3em; height: 1.3em; flex: 0 0 auto; vertical-align: -.25em; margin-right: .3em; color: var(--vision-mint); background-color: currentColor; -webkit-mask: var(--vision-icon-image) center / contain no-repeat; mask: var(--vision-icon-image) center / contain no-repeat; }
+.md-typeset .vision-feature-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; margin: 0 0 2.3rem; }
+.md-typeset .vision-feature-nav a { display: flex; flex-direction: column; align-items: flex-start; gap: .6rem; padding: 1rem; border: 1px solid var(--md-default-fg-color--lightest); border-radius: .6rem; color: var(--md-default-fg-color); font-size: .72rem; font-weight: 600; }
+.md-typeset .vision-feature-nav .vision-icon { width: 1.8rem; height: 1.8rem; margin: 0; }
+.md-typeset .vision-feature-nav a:hover { border-color: var(--vision-mint); background: var(--md-code-bg-color); }
+.md-typeset .vision-feature-nav a:focus-visible { outline: 2px solid var(--vision-mint); outline-offset: 3px; }
+.md-typeset td .vision-icon { width: 1.2em; height: 1.2em; }
+@media(max-width: 760px) { .md-typeset .vision-feature-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.icon-camera { --vision-icon-image: url("../images/icons/camera.svg"); }
+.icon-capture { --vision-icon-image: url("../images/icons/capture.svg"); }
+.icon-controls { --vision-icon-image: url("../images/icons/controls.svg"); }
+.icon-picker { --vision-icon-image: url("../images/icons/picker.svg"); }
+.icon-adjust { --vision-icon-image: url("../images/icons/adjust.svg"); }
+.icon-overlay { --vision-icon-image: url("../images/icons/overlay.svg"); }
+.icon-ocr { --vision-icon-image: url("../images/icons/ocr.svg"); }
+.icon-inference { --vision-icon-image: url("../images/icons/inference.svg"); }
+.icon-shared { --vision-icon-image: url("../images/icons/shared.svg"); }
+.icon-modules { --vision-icon-image: url("../images/icons/modules.svg"); }
+.icon-scan { --vision-icon-image: url("../images/icons/scan.svg"); }
+.icon-respond { --vision-icon-image: url("../images/icons/respond.svg"); }

@@ -22,25 +22,36 @@ KMP-Vision simplifies everyday camera and photo workflows with Kotlin and Compos
 
 
 
+<nav class="vision-feature-nav" aria-label="Explore main features">
+  <a href="camera/"><span class="vision-icon icon-camera" aria-hidden="true"></span><span>Camera preview</span></a>
+  <a href="camera-and-picker/"><span class="vision-icon icon-capture" aria-hidden="true"></span><span>Photo capture</span></a>
+  <a href="camera/"><span class="vision-icon icon-controls" aria-hidden="true"></span><span>Camera controls</span></a>
+  <a href="picker/"><span class="vision-icon icon-picker" aria-hidden="true"></span><span>Photo picker</span></a>
+  <a href="picker/#image-resizing"><span class="vision-icon icon-adjust" aria-hidden="true"></span><span>Resize &amp; filters</span></a>
+  <a href="overlay/"><span class="vision-icon icon-overlay" aria-hidden="true"></span><span>Visual overlays</span></a>
+  <a href="ocr/"><span class="vision-icon icon-ocr" aria-hidden="true"></span><span>Text recognition</span></a>
+  <a href="models/"><span class="vision-icon icon-inference" aria-hidden="true"></span><span>Model inference</span></a>
+</nav>
+
 ## Less platform plumbing. More product.
 
 A profile photo, a product listing, a field report, or a document attachment all start with familiar needs: open the camera, capture an image, or select one from the library. KMP-Vision brings these building blocks into a shared Kotlin workflow so you can spend more time on the experience your users need.
 
 <div class="grid cards" markdown>
 
--   **Share the feature, including the UI**
+-   <span class="vision-icon icon-shared" aria-hidden="true"></span> **Share the feature, including the UI**
 
     Keep application logic and Compose screens in `commonMain`. Improve the shared implementation and bring that change to both platform builds.
 
--   **Make camera controls part of your design**
+-   <span class="vision-icon icon-controls" aria-hidden="true"></span> **Make camera controls part of your design**
 
     Embed a Compose preview, switch between front and back cameras, control the torch where available, and respond to camera readiness and capture state.
 
--   **Bring photos into your app**
+-   <span class="vision-icon icon-picker" aria-hidden="true"></span> **Bring photos into your app**
 
     Capture a still photo or open the system picker for single or multiple images. Receive image bytes to display, store, or pass into your own upload workflow.
 
--   **Start small. Add what you need.**
+-   <span class="vision-icon icon-modules" aria-hidden="true"></span> **Start small. Add what you need.**
 
     Use the camera or picker on its own. Add resizing and filters to image selection, then bring in OCR or inference only when you need recognition.
 
@@ -52,17 +63,17 @@ Give someone a clear preview, a capture button, and a choice of camera. Or let t
 
 | Your app needs to… | KMP-Vision gives you… |
 | :--- | :--- |
-| **Show the camera inside your UI** | A Compose preview with camera state and custom permission-denied content |
-| **Take a photo** | Still capture, an optional capture aspect ratio, and an image-byte callback for your next step |
-| **Fit the preview to your design** | Preview scale and orientation options for your layout |
-| **Manage the camera** | Front/back switching, torch controls, readiness and capture state, and preview freezing |
-| **Choose existing photos** | The system picker, single/multiple selection, and selection limits |
-| **Prepare selected images** | Resize dimensions, compression quality, size thresholds, and grayscale, sepia, or invert filters |
-| **Build a custom scanner** | Camera frames for your own analysis and styleable result overlays |
+| <span class="vision-icon icon-camera" aria-hidden="true"></span> **Show the camera inside your UI** | A Compose preview with camera state and custom permission-denied content |
+| <span class="vision-icon icon-capture" aria-hidden="true"></span> **Take a photo** | Still capture, an optional capture aspect ratio, and an image-byte callback for your next step |
+| <span class="vision-icon icon-adjust" aria-hidden="true"></span> **Fit the preview to your design** | Preview scale and orientation options for your layout |
+| <span class="vision-icon icon-controls" aria-hidden="true"></span> **Manage the camera** | Front/back switching, torch controls, readiness and capture state, and preview freezing |
+| <span class="vision-icon icon-picker" aria-hidden="true"></span> **Choose existing photos** | The system picker, single/multiple selection, and selection limits |
+| <span class="vision-icon icon-adjust" aria-hidden="true"></span> **Prepare selected images** | Resize dimensions, compression quality, size thresholds, and grayscale, sepia, or invert filters |
+| <span class="vision-icon icon-scan" aria-hidden="true"></span> **Build a custom scanner** | Camera frames for your own analysis and styleable result overlays |
 
 <div class="grid cards" markdown>
 
--   **Capture a new photo**
+-   <span class="vision-icon icon-capture" aria-hidden="true"></span> **Capture a new photo**
 
     ![Vision Lab showing the camera preview and Capture button](images/camera.png){ .camera-feature-preview loading=lazy }
 
@@ -70,7 +81,7 @@ Give someone a clear preview, a capture button, and a choice of camera. Or let t
 
     [Explore camera management →](camera.md)
 
--   **Choose a photo you already have**
+-   <span class="vision-icon icon-picker" aria-hidden="true"></span> **Choose a photo you already have**
 
     ![Vision Lab opening the Android system photo picker](images/picker.png){ .camera-feature-preview loading=lazy }
 
@@ -103,15 +114,15 @@ Imagine a workspace assistant that helps someone find an item, a cataloguing too
 
 <div class="grid cards" markdown>
 
--   **Point**
+-   <span class="vision-icon icon-camera" aria-hidden="true"></span> **Point**
 
     Bring an image into your shared workflow from the camera or system picker.
 
--   **Recognize**
+-   <span class="vision-icon icon-scan" aria-hidden="true"></span> **Recognize**
 
     Run your compatible model, interpret its outputs, and highlight the objects that matter with Compose overlays.
 
--   **Respond**
+-   <span class="vision-icon icon-respond" aria-hidden="true"></span> **Respond**
 
     Turn results into a useful action: select an item, review a list, or explore a scene through a separately integrated vision-language experience.
 
@@ -142,11 +153,11 @@ The **Vision Lab** tutorial is a working starting point: load an image, run nati
 
 | Capability | What it gives you | Start here |
 | :--- | :--- | :--- |
-| **Camera** | A Compose preview, still capture, camera controls, and frames for analysis | [Camera guide](camera.md) |
-| **Image picking** | System image selection with resize and filter options | [Picker guide](picker.md) |
-| **Visual overlays** | Styleable rectangles and labels over your own content | [Overlay guide](overlay.md) |
-| **Text recognition** | Recognized text and normalized bounding boxes through one Kotlin API | [OCR guide](ocr.md) |
-| **Model inference** | A shared interface for compatible TFLite and Core ML models | [Models guide](models.md) |
+| <span class="vision-icon icon-camera" aria-hidden="true"></span> **Camera** | A Compose preview, still capture, camera controls, and frames for analysis | [Camera guide](camera.md) |
+| <span class="vision-icon icon-picker" aria-hidden="true"></span> **Image picking** | System image selection with resize and filter options | [Picker guide](picker.md) |
+| <span class="vision-icon icon-overlay" aria-hidden="true"></span> **Visual overlays** | Styleable rectangles and labels over your own content | [Overlay guide](overlay.md) |
+| <span class="vision-icon icon-ocr" aria-hidden="true"></span> **Text recognition** | Recognized text and normalized bounding boxes through one Kotlin API | [OCR guide](ocr.md) |
+| <span class="vision-icon icon-inference" aria-hidden="true"></span> **Model inference** | A shared interface for compatible TFLite and Core ML models | [Models guide](models.md) |
 
 Use these pieces for profile photos, product images, photo attachments, image annotation, or recognition workflows. You provide the product logic; KMP-Vision provides the integration points.
 
