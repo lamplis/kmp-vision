@@ -28,3 +28,5 @@
 [data-md-color-scheme="slate"] .md-typeset .md-button { color: #75efc0; border-color: #75efc0; }
 [data-md-color-scheme="slate"] .md-typeset .md-button--primary { background: #75efc0; color: #0d1823; }
 @media(max-width: 600px) { .md-typeset .vision-hero h1 { font-size: 2.4rem; } }
+
+.md-typeset img.camera-feature-preview { display: block; height: 22rem; width: auto; max-width: 100%; object-fit: contain; margin: 1rem auto; border-radius: .5rem; }

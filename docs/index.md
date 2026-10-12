@@ -1,6 +1,6 @@
 ---
 title: KMP-Vision — build once for Android and iOS
-description: Camera, OCR, image picking, overlays, and on-device inference for Kotlin and Compose Multiplatform. Build shared vision experiences for Android and iOS.
+description: Simplify camera previews, photo capture, camera controls, image picking, resizing, and filters with shared Kotlin and Compose UI for Android and iOS. Add OCR and inference when you need them.
 hide:
   - toc
 ---
@@ -8,26 +8,23 @@ hide:
 <div class="vision-hero" markdown>
 <span class="eyebrow">KOTLIN MULTIPLATFORM · OPEN SOURCE</span>
 
-# One vision.<br>Both platforms.
+# One camera toolkit.<br>Both platforms.
 
-Build your camera-powered experience once. Bring it to **Android and iOS**.
+Build your camera and photo features once. Bring them to **Android and iOS**.
 
-KMP-Vision brings camera previews, text recognition, image picking, visual overlays, and on-device model inference to Kotlin and Compose Multiplatform. Write your feature logic and UI in shared code, with native implementations underneath.
+KMP-Vision simplifies everyday camera and photo workflows with Kotlin and Compose Multiplatform: show a preview, take a photo, switch cameras, control the torch, or let someone choose images from their library. Resize and filter selected images, and keep your feature logic and UI in shared code. Add OCR, overlays, or model inference whenever your product needs them.
 
-[Build your first feature →](tutorial.md){ .md-button .md-button--primary }
+[Build a camera feature →](camera-and-picker.md){ .md-button .md-button--primary }
 [Explore the source](https://github.com/lamplis/kmp-vision){ .md-button }
 
-<span class="hero-meta">Android + iOS &nbsp; / &nbsp; Native recognition engines &nbsp; / &nbsp; Apache-2.0</span>
+<span class="hero-meta">Android + iOS &nbsp; / &nbsp; Camera · Photos · Vision &nbsp; / &nbsp; Apache-2.0</span>
 </div>
 
-<figure class="vision-showcase">
-  <img src="images/phones-vision-concept.webp" alt="Concept illustration of an Android phone and an iPhone with Dynamic Island identifying a plant, cup, and notebook." width="1536" height="1024" fetchpriority="high">
-  <figcaption>One shared vision, two familiar platforms. AI-generated concept illustration; object detection requires your own compatible model and integration.</figcaption>
-</figure>
+
 
 ## Less platform plumbing. More product.
 
-A camera feature is more than a preview. You need to get an image, analyze it, turn coordinates into something useful, and present the result. KMP-Vision brings those pieces into a shared Kotlin workflow.
+A profile photo, a product listing, a field report, or a document attachment all start with familiar needs: open the camera, capture an image, or select one from the library. KMP-Vision brings these building blocks into a shared Kotlin workflow so you can spend more time on the experience your users need.
 
 <div class="grid cards" markdown>
 
@@ -35,21 +32,65 @@ A camera feature is more than a preview. You need to get an image, analyze it, t
 
     Keep application logic and Compose screens in `commonMain`. Improve the shared implementation and bring that change to both platform builds.
 
--   **Put native capabilities to work**
+-   **Make camera controls part of your design**
 
-    Use ML Kit on Android and Apple Vision on iOS through a common OCR API. Run compatible models with LiteRT and Core ML.
+    Embed a Compose preview, switch between front and back cameras, control the torch where available, and respond to camera readiness and capture state.
 
--   **Keep recognition on the device**
+-   **Bring photos into your app**
 
-    The OCR workflow processes images locally. Get started without a recognition server or an API key.
+    Capture a still photo or open the system picker for single or multiple images. Receive image bytes to display, store, or pass into your own upload workflow.
 
 -   **Start small. Add what you need.**
 
-    Use OCR on its own, add overlays to an existing screen, or combine the camera and picker. The library is split into focused modules.
+    Use the camera or picker on its own. Add resizing and filters to image selection, then bring in OCR or inference only when you need recognition.
 
 </div>
 
-## Give your camera a vocabulary
+## Everything starts with a photo
+
+Give someone a clear preview, a capture button, and a choice of camera. Or let them pick an existing image and carry on with their task. These everyday interactions are useful features on their own—no model or recognition service required.
+
+| Your app needs to… | KMP-Vision gives you… |
+| :--- | :--- |
+| **Show the camera inside your UI** | A Compose preview with camera state and custom permission-denied content |
+| **Take a photo** | Still capture, an optional capture aspect ratio, and an image-byte callback for your next step |
+| **Fit the preview to your design** | Preview scale and orientation options for your layout |
+| **Manage the camera** | Front/back switching, torch controls, readiness and capture state, and preview freezing |
+| **Choose existing photos** | The system picker, single/multiple selection, and selection limits |
+| **Prepare selected images** | Resize dimensions, compression quality, size thresholds, and grayscale, sepia, or invert filters |
+| **Build a custom scanner** | Camera frames for your own analysis and styleable result overlays |
+
+<div class="grid cards" markdown>
+
+-   **Capture a new photo**
+
+    ![Vision Lab showing the camera preview and Capture button](images/camera.png){ .camera-feature-preview loading=lazy }
+
+    A real camera preview from the Android tutorial, using the emulator's virtual scene. Add your own capture flow and controls.
+
+    [Explore camera management →](camera.md)
+
+-   **Choose a photo you already have**
+
+    ![Vision Lab opening the Android system photo picker](images/picker.png){ .camera-feature-preview loading=lazy }
+
+    Open familiar system photo selection from shared code, then prepare the selected images for your app.
+
+    [Explore photo picking and filters →](picker.md)
+
+</div>
+
+[Build a camera and picker screen](camera-and-picker.md){ .md-button .md-button--primary }
+[Run the tutorial](tutorial.md){ .md-button }
+
+## Add intelligence when the feature calls for it
+
+<figure class="vision-showcase">
+  <img src="images/phones-vision-concept.webp" alt="Concept illustration of an Android phone and an iPhone with Dynamic Island identifying a plant, cup, and notebook." width="1536" height="1024" fetchpriority="high">
+  <figcaption>One shared vision, two familiar platforms. AI-generated concept illustration; object detection requires your own compatible model and integration.</figcaption>
+</figure>
+
+### Give your camera a vocabulary
 
 Point at a desk. Find the notebook. Highlight the headphones. Turn a camera frame into something your app can act on.
 
@@ -102,12 +143,12 @@ The **Vision Lab** tutorial is a working starting point: load an image, run nati
 | Capability | What it gives you | Start here |
 | :--- | :--- | :--- |
 | **Camera** | A Compose preview, still capture, camera controls, and frames for analysis | [Camera guide](camera.md) |
-| **Text recognition** | Recognized text and normalized bounding boxes through one Kotlin API | [OCR guide](ocr.md) |
-| **Visual overlays** | Styleable rectangles and labels over your own content | [Overlay guide](overlay.md) |
 | **Image picking** | System image selection with resize and filter options | [Picker guide](picker.md) |
+| **Visual overlays** | Styleable rectangles and labels over your own content | [Overlay guide](overlay.md) |
+| **Text recognition** | Recognized text and normalized bounding boxes through one Kotlin API | [OCR guide](ocr.md) |
 | **Model inference** | A shared interface for compatible TFLite and Core ML models | [Models guide](models.md) |
 
-Use these pieces to build text-capture tools, annotate images, or add recognition to a scanning workflow. You provide the product logic; KMP-Vision provides the integration points.
+Use these pieces for profile photos, product images, photo attachments, image annotation, or recognition workflows. You provide the product logic; KMP-Vision provides the integration points.
 
 ## One development effort. Native execution.
 
@@ -121,29 +162,48 @@ Kotlin Multiplatform lets you share code across Android and iOS. Compose Multipl
 
 [Install the modules](install.md) · [Understand platform differences](ocr.md#platform-behavior)
 
-## A small API. A useful first result.
+## Start with a camera and a capture button
 
-Recognize an encoded image from shared Kotlin code:
+This shared Compose component shows a preview and returns the captured image to your application:
 
 ```kotlin
-import io.github.lamplis.vision.ocr.OcrLine
-import io.github.lamplis.vision.ocr.createOcr
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import io.github.lamplis.vision.camera.VisionCamera
+import io.github.lamplis.vision.camera.rememberVisionCameraState
 
-suspend fun readText(encodedImage: ByteArray): List<OcrLine> {
-    val recognizer = createOcr()
-    return try {
-        recognizer.recognize(encodedImage)
-    } finally {
-        recognizer.close()
+@Composable
+fun PhotoCapture(onCapture: (ByteArray?) -> Unit) {
+    val state = rememberVisionCameraState(onCapture = onCapture)
+    Column {
+        VisionCamera(
+            state = state,
+            modifier = Modifier.fillMaxWidth().height(320.dp),
+            permissionDeniedContent = { Text("Enable camera access in Settings.") },
+        )
+        Button(
+            onClick = state::capture,
+            enabled = state.isCameraReady && !state.isCapturing,
+        ) {
+            Text("Take photo")
+        }
     }
 }
 ```
 
-Each line includes text and a top-left normalized bounding box. The [complete tutorial](tutorial.md) shows image loading, state, coroutine handling, resource cleanup, and overlays. For repeated recognition, reuse a recognizer for the lifetime of the workflow and close it when that workflow finishes.
+Your callback decides what happens next: display the photo, save it, or hand it to your upload flow. Handle a `null` capture result as an unsuccessful capture. Follow the [installation](install.md) and [platform setup](camera-and-picker.md) guides before running the screen.
+
+Need more? Add [photo selection and filters](picker.md), [on-device text recognition](ocr.md), or your own [model integration](models.md). The [complete tutorial](tutorial.md) connects camera capture, picking, recognition, and overlays in a runnable app.
 
 ## Built to be shared
 
-KMP-Vision is maintained by [lamplis](https://github.com/lamplis), with a simple goal: make useful mobile vision capabilities easier to build, understand, and reuse in the open.
+KMP-Vision is maintained by [lamplis](https://github.com/lamplis), with a simple goal: make mobile camera, photo, and vision features easier to build, understand, and reuse in the open.
 
 The project brings shared Kotlin APIs, native integrations, and Compose components together in a modular toolkit. The source and tutorial are available to study, adapt, and improve under the **Apache-2.0 license**.
 
