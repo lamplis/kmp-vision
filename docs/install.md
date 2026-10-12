@@ -39,17 +39,17 @@ Then choose your modules in the application's shared source set:
 
 ```kotlin
 commonMain.dependencies {
-    implementation("io.github.lamplis:vision-ocr:0.6.0")
-    implementation("io.github.lamplis:vision-overlay:0.6.0")
+    implementation("io.github.lamplis:vision-ocr:1.0.0")
+    implementation("io.github.lamplis:vision-overlay:1.0.0")
     // Optional:
-    // implementation("io.github.lamplis:vision-camera:0.6.0")
-    // implementation("io.github.lamplis:vision-gallery:0.6.0")
-    // implementation("io.github.lamplis:vision-picker:0.6.0")
-    // implementation("io.github.lamplis:vision-infer:0.6.0")
+    // implementation("io.github.lamplis:vision-camera:1.0.0")
+    // implementation("io.github.lamplis:vision-gallery:1.0.0")
+    // implementation("io.github.lamplis:vision-picker:1.0.0")
+    // implementation("io.github.lamplis:vision-infer:1.0.0")
 }
 ```
 
-Here the composite build resolves these coordinates to your local checkout. `0.6.0` is the source version in this repository; this example does not rely on Maven Central. Pin the checkout to the commit you have tested when adopting it in your application.
+Here the composite build resolves these coordinates to your local checkout. `1.0.0` is the source version in this repository; this example does not rely on Maven Central. Pin the checkout to the commit you have tested when adopting it in your application.
 
 !!! note "Published artifacts"
     As checked on October 12, 2026, Maven Central does not expose metadata for `io.github.lamplis:vision-ocr`. Use the source workflow above until a published release is available. The repository's publishing configuration alone does not confirm that a release has been uploaded.
