@@ -24,7 +24,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "io.github.lamplis.vision.sample"
+        namespace = "io.github.lamplis.vision.sample.common"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         compilerOptions {
