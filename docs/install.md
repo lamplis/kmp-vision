@@ -51,8 +51,7 @@ commonMain.dependencies {
 
 Here the composite build resolves these coordinates to your local checkout. `1.0.0` is the source version in this repository; this example does not rely on Maven Central. Pin the checkout to the commit you have tested when adopting it in your application.
 
-!!! note "Published artifacts"
-    As checked on October 12, 2026, Maven Central does not expose metadata for `io.github.lamplis:vision-ocr`. Use the source workflow above until a published release is available. The repository's publishing configuration alone does not confirm that a release has been uploaded.
+`1.0.0` is also published on Maven Central for every module in the table below.
 
 ## Choose only what you need
 
