@@ -35,6 +35,7 @@ import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,16 @@ import com.preat.peekaboo.image.picker.ResizeOptions
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
 import com.preat.peekaboo.image.picker.toImageBitmap
+import com.preat.peekaboo.ui.camera.PeekabooCamera
+import com.preat.peekaboo.ui.camera.rememberPeekabooCameraState
+import io.github.lamplis.vision.session.FrameAnalyzer
+import io.github.lamplis.vision.session.LiveFramePump
+import io.github.lamplis.vision.session.OverlayShape
+import io.github.lamplis.vision.session.VisionOverlay
+import io.github.lamplis.vision.text.createTextRecognizer
+import kotlinx.coroutines.launch
+import kotlin.time.Clock
+import io.github.lamplis.vision.session.NormalizedRect as OverlayRect
 
 @Composable
 fun App() {
@@ -64,6 +75,7 @@ fun App() {
     val snackbarHostState = remember { SnackbarHostState() }
     var showCamera by rememberSaveable { mutableStateOf(false) }
     var showGallery by rememberSaveable { mutableStateOf(false) }
+    var showReadText by rememberSaveable { mutableStateOf(false) }
 
     val singleImagePicker =
         rememberImagePickerLauncher(
@@ -137,6 +149,12 @@ fun App() {
                             }
                         }
                     }
+                    showReadText -> {
+                        ReadTextPage(
+                            modifier = Modifier.weight(1f),
+                            onBack = { showReadText = false },
+                        )
+                    }
                     showGallery -> {
                         PeekabooGalleryView(
                             modifier = Modifier.fillMaxSize(),
@@ -195,9 +213,86 @@ fun App() {
                         ) {
                             Text("Pick Image from Gallery")
                         }
+                        Button(
+                            onClick = {
+                                showReadText = true
+                            },
+                        ) {
+                            Text("Read text")
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ReadTextPage(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val scope = rememberCoroutineScope()
+    val recognizer = remember { createTextRecognizer() }
+    DisposableEffect(recognizer) {
+        onDispose { recognizer.close() }
+    }
+    val pump =
+        remember(recognizer) {
+            LiveFramePump(
+                analyzer =
+                    FrameAnalyzer { jpeg ->
+                        recognizer.recognize(jpeg).flatMap { observation ->
+                            val bounds =
+                                OverlayRect(
+                                    left = observation.boundingBox.left,
+                                    top = observation.boundingBox.top,
+                                    right = observation.boundingBox.right,
+                                    bottom = observation.boundingBox.bottom,
+                                )
+                            listOf(
+                                OverlayShape.Rect(bounds),
+                                OverlayShape.Label(bounds, observation.text),
+                            )
+                        }
+                    },
+            )
+        }
+    var shapes by remember { mutableStateOf(emptyList<OverlayShape>()) }
+    val state =
+        rememberPeekabooCameraState(
+            onScannerFrame = { frame ->
+                frame.retainForAsyncAnalysis()
+                scope.launch {
+                    try {
+                        shapes = pump.onFrame(frame, Clock.System.now().toEpochMilliseconds())
+                    } finally {
+                        frame.releaseAfterAsyncAnalysis()
+                    }
+                }
+            },
+            onCapture = {},
+        )
+    Box(modifier) {
+        PeekabooCamera(
+            state = state,
+            modifier = Modifier.fillMaxSize(),
+        )
+        VisionOverlay(
+            shapes = shapes,
+            modifier = Modifier.fillMaxSize(),
+        )
+        Button(
+            onClick = state::capture,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) {
+            Text("Capture")
+        }
+        Button(
+            onClick = onBack,
+            modifier = Modifier.align(Alignment.TopStart),
+        ) {
+            Text("Back")
         }
     }
 }

@@ -22,12 +22,11 @@ import com.preat.peekaboo.ui.gallery.model.PeekabooMediaImage
 internal class PeekabooGalleryDataSource(
     private val onFetch: (limit: Int, offset: Int) -> List<PeekabooMediaImage>,
 ) : PagingSource<Int, PeekabooMediaImage>() {
-    override fun getRefreshKey(state: PagingState<Int, PeekabooMediaImage>): Int? {
-        return state.anchorPosition?.let {
+    override fun getRefreshKey(state: PagingState<Int, PeekabooMediaImage>): Int? =
+        state.anchorPosition?.let {
             state.closestPageToPosition(it)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(it)?.nextKey?.minus(1)
         }
-    }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PeekabooMediaImage> {
         val pageNumber = params.key ?: 0

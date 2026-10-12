@@ -24,11 +24,10 @@ import com.preat.peekaboo.ui.gallery.repository.PeekabooGalleryRepository
 internal class PeekabooGalleryViewModelFactory(
     private val peekabooGalleryRepository: PeekabooGalleryRepository,
 ) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return if (modelClass.isAssignableFrom(PeekabooGalleryViewModel::class.java)) {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+        if (modelClass.isAssignableFrom(PeekabooGalleryViewModel::class.java)) {
             PeekabooGalleryViewModel(this.peekabooGalleryRepository) as T
         } else {
             throw IllegalArgumentException("ViewModel Not Found")
         }
-    }
 }

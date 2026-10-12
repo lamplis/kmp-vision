@@ -25,13 +25,22 @@ import androidx.compose.runtime.setValue
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.plus
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.reinterpret
+import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
 import platform.CoreFoundation.CFRelease
+import platform.CoreGraphics.CGImageGetHeight
+import platform.CoreGraphics.CGImageGetWidth
+import platform.CoreGraphics.CGRectMake
+import platform.CoreGraphics.CGSizeMake
+import platform.CoreImage.CIContext
+import platform.CoreImage.CIImage
+import platform.CoreImage.createCGImage
 import platform.CoreVideo.CVPixelBufferCreate
 import platform.CoreVideo.CVPixelBufferGetBaseAddress
 import platform.CoreVideo.CVPixelBufferGetBaseAddressOfPlane
@@ -46,6 +55,12 @@ import platform.CoreVideo.CVPixelBufferIsPlanar
 import platform.CoreVideo.CVPixelBufferLockBaseAddress
 import platform.CoreVideo.CVPixelBufferRefVar
 import platform.CoreVideo.CVPixelBufferUnlockBaseAddress
+import platform.Foundation.NSData
+import platform.UIKit.UIGraphicsBeginImageContextWithOptions
+import platform.UIKit.UIGraphicsEndImageContext
+import platform.UIKit.UIGraphicsGetImageFromCurrentImageContext
+import platform.UIKit.UIImage
+import platform.UIKit.UIImageJPEGRepresentation
 import platform.posix.memcpy
 
 @Stable
@@ -105,8 +120,8 @@ actual class PeekabooCameraState(
             onFrame: ((frame: ByteArray) -> Unit)?,
             onScannerFrame: ((frame: PeekabooCameraFrame) -> Unit)?,
             onCapture: (ByteArray?) -> Unit,
-        ): Saver<PeekabooCameraState, Int> {
-            return Saver(
+        ): Saver<PeekabooCameraState, Int> =
+            Saver(
                 save = {
                     it.cameraMode.id()
                 },
@@ -119,7 +134,6 @@ actual class PeekabooCameraState(
                     )
                 },
             )
-        }
     }
 }
 
@@ -129,15 +143,14 @@ actual fun rememberPeekabooCameraState(
     onFrame: ((frame: ByteArray) -> Unit)?,
     onScannerFrame: ((frame: PeekabooCameraFrame) -> Unit)?,
     onCapture: (ByteArray?) -> Unit,
-): PeekabooCameraState {
-    return rememberSaveable(
+): PeekabooCameraState =
+    rememberSaveable(
         saver = PeekabooCameraState.saver(onFrame, onScannerFrame, onCapture),
     ) { PeekabooCameraState(initialCameraMode, onFrame, onScannerFrame, onCapture) }.apply {
         this.onFrame = onFrame
         this.onScannerFrame = onScannerFrame
         this.onCapture = onCapture
     }
-}
 
 @OptIn(ExperimentalForeignApi::class)
 actual class PeekabooCameraFrame internal constructor(
@@ -185,6 +198,36 @@ actual class PeekabooCameraFrame internal constructor(
     @Suppress("UNUSED_PARAMETER")
     actual fun copyLumaThumbnail(maxLongEdge: Int): LumaThumbnail? = null
 
+    @OptIn(ExperimentalForeignApi::class)
+    actual fun toJpeg(
+        quality: Double,
+        maxLongEdge: Int,
+    ): ByteArray? {
+        val buffer = asyncCopy ?: sourcePixelBuffer ?: return null
+        val ciImage = CIImage.imageWithCVPixelBuffer(buffer)
+        val context = CIContext.contextWithOptions(null)
+        val cgImage = context.createCGImage(ciImage, fromRect = ciImage.extent) ?: return null
+        var image = UIImage.imageWithCGImage(cgImage)
+        val width = CGImageGetWidth(cgImage).toDouble()
+        val height = CGImageGetHeight(cgImage).toDouble()
+        val longEdge = maxOf(width, height)
+        if (longEdge > maxLongEdge && longEdge > 0.0) {
+            val scale = maxLongEdge.toDouble() / longEdge
+            val targetWidth = width * scale
+            val targetHeight = height * scale
+            val target = CGSizeMake(targetWidth, targetHeight)
+            UIGraphicsBeginImageContextWithOptions(target, false, 1.0)
+            image.drawInRect(CGRectMake(0.0, 0.0, targetWidth, targetHeight))
+            val scaled = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            if (scaled != null) {
+                image = scaled
+            }
+        }
+        val jpeg = UIImageJPEGRepresentation(image, quality.coerceIn(0.0, 1.0)) ?: return null
+        return jpeg.toByteArray()
+    }
+
     actual fun releaseAfterAsyncAnalysis() {
         val copy = asyncCopy ?: return
         CFRelease(copy)
@@ -193,28 +236,27 @@ actual class PeekabooCameraFrame internal constructor(
     }
 }
 
-actual fun metadataOnlyCameraFrame(metadata: PeekabooFrameMetadata): PeekabooCameraFrame =
-    PeekabooCameraFrame(metadata)
+actual fun metadataOnlyCameraFrame(metadata: PeekabooFrameMetadata): PeekabooCameraFrame = PeekabooCameraFrame(metadata)
 
 @OptIn(ExperimentalForeignApi::class)
-private fun copyPixelBuffer(
-    src: platform.CoreVideo.CVPixelBufferRef,
-): platform.CoreVideo.CVPixelBufferRef? {
+private fun copyPixelBuffer(src: platform.CoreVideo.CVPixelBufferRef): platform.CoreVideo.CVPixelBufferRef? {
     val width = CVPixelBufferGetWidth(src)
     val height = CVPixelBufferGetHeight(src)
     val pixelFormat = CVPixelBufferGetPixelFormatType(src)
-    val newBuffer = memScoped {
-        val outVar = alloc<CVPixelBufferRefVar>()
-        val status = CVPixelBufferCreate(
-            allocator = null,
-            width = width,
-            height = height,
-            pixelFormatType = pixelFormat,
-            pixelBufferAttributes = null,
-            pixelBufferOut = outVar.ptr,
-        )
-        if (status != 0) null else outVar.value
-    } ?: return null
+    val newBuffer =
+        memScoped {
+            val outVar = alloc<CVPixelBufferRefVar>()
+            val status =
+                CVPixelBufferCreate(
+                    allocator = null,
+                    width = width,
+                    height = height,
+                    pixelFormatType = pixelFormat,
+                    pixelBufferAttributes = null,
+                    pixelBufferOut = outVar.ptr,
+                )
+            if (status != 0) null else outVar.value
+        } ?: return null
 
     val readOnlyLock: ULong = 1uL
     CVPixelBufferLockBaseAddress(src, readOnlyLock)
@@ -316,4 +358,16 @@ private fun copyPixelRows(
         )
         row++
     }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+private fun NSData.toByteArray(): ByteArray {
+    val size = length.toInt()
+    val byteArray = ByteArray(size)
+    if (size > 0) {
+        byteArray.usePinned { pinned ->
+            memcpy(pinned.addressOf(0), bytes, length)
+        }
+    }
+    return byteArray
 }

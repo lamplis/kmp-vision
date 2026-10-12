@@ -35,8 +35,8 @@ private val projection =
 internal fun Context.createCursor(
     limit: Int,
     offset: Int,
-): Cursor? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+): Cursor? =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val bundle =
             bundleOf(
                 ContentResolver.QUERY_ARG_OFFSET to offset,
@@ -60,7 +60,6 @@ internal fun Context.createCursor(
             null,
         )
     }
-}
 
 internal fun Context.fetchPagePicture(
     limit: Int,

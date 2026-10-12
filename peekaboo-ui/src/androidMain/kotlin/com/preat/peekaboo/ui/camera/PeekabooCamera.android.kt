@@ -38,9 +38,6 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -49,7 +46,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
@@ -95,6 +95,7 @@ actual fun PeekabooCamera(
             captureAspectRatio = captureAspectRatio,
             previewScaleType = previewScaleType,
             previewOrientationMode = previewOrientationMode,
+            permissionDeniedContent = permissionDeniedContent,
         )
         CompatOverlay(
             modifier = Modifier.fillMaxSize(),
@@ -175,9 +176,10 @@ private fun CameraWithGrantedPermission(
     val context = LocalContext.current
     // Use Activity as lifecycle owner to ensure camera works inside Dialogs
     // (Dialog's LocalLifecycleOwner may not be in RESUMED state)
-    val lifecycleOwner: LifecycleOwner = remember(context) {
-        context.findLifecycleOwner()
-    }
+    val lifecycleOwner: LifecycleOwner =
+        remember(context) {
+            context.findLifecycleOwner()
+        }
     val cameraProvider: ProcessCameraProvider? by loadCameraProvider(context)
 
     val preview = remember { Preview.Builder().build() }
@@ -197,19 +199,19 @@ private fun CameraWithGrantedPermission(
         remember(state.onFrame, state.onScannerFrame) {
             if (state.onFrame != null || state.onScannerFrame != null) {
                 val analyzer =
-                    ImageAnalysis.Builder()
+                    ImageAnalysis
+                        .Builder()
                         .setResolutionSelector(
-                            ResolutionSelector.Builder()
+                            ResolutionSelector
+                                .Builder()
                                 .setAspectRatioStrategy(AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
                                 .setResolutionStrategy(
                                     ResolutionStrategy(
                                         Size(1440, 1080),
                                         ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
                                     ),
-                                )
-                                .build(),
-                        )
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                                ).build(),
+                        ).setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build()
 
                 analyzer.apply {
@@ -288,17 +290,18 @@ private fun CameraWithGrantedPermission(
                 val rotation = preview.targetRotation
                 val rational = aspectRatioToRational(captureAspectRatio)
                 val viewPort =
-                    ViewPort.Builder(rational, rotation)
+                    ViewPort
+                        .Builder(rational, rotation)
                         .setScaleType(ViewPort.FILL_CENTER)
                         .build()
                 useCaseGroupBuilder.setViewPort(viewPort)
             }
             val camera =
                 cameraProvider?.bindToLifecycle(
-                lifecycleOwner,
-                cameraSelector,
-                useCaseGroupBuilder.build(),
-            )
+                    lifecycleOwner,
+                    cameraSelector,
+                    useCaseGroupBuilder.build(),
+                )
             boundCamera.value = camera
             val hasTorch = state.cameraMode == CameraMode.Back && (camera?.cameraInfo?.hasFlashUnit() == true)
             state.isTorchAvailable = hasTorch
@@ -377,7 +380,10 @@ internal fun aspectRatioToRational(aspectRatio: Float): Rational {
     return Rational(numerator / divisor, denominator / divisor)
 }
 
-private tailrec fun gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
+private tailrec fun gcd(
+    a: Int,
+    b: Int,
+): Int = if (b == 0) a else gcd(b, a % b)
 
 class ImageCaptureCallback(
     private val onCapture: (byteArray: ByteArray?) -> Unit,
@@ -403,16 +409,18 @@ private fun ImageProxy.toByteArray(): ByteArray {
     val cropped =
         runCatching {
             val rect = cropRect
-            if (rect.width() in 1..bitmap.width && rect.height() in 1..bitmap.height &&
+            if (rect.width() in 1..bitmap.width &&
+                rect.height() in 1..bitmap.height &&
                 (rect.left != 0 || rect.top != 0 || rect.width() != bitmap.width || rect.height() != bitmap.height)
             ) {
-                Bitmap.createBitmap(
-                    bitmap,
-                    max(0, rect.left),
-                    max(0, rect.top),
-                    min(rect.width(), bitmap.width - max(0, rect.left)),
-                    min(rect.height(), bitmap.height - max(0, rect.top)),
-                ).also { if (it != bitmap) bitmap.recycle() }
+                Bitmap
+                    .createBitmap(
+                        bitmap,
+                        max(0, rect.left),
+                        max(0, rect.top),
+                        min(rect.width(), bitmap.width - max(0, rect.left)),
+                        min(rect.height(), bitmap.height - max(0, rect.top)),
+                    ).also { if (it != bitmap) bitmap.recycle() }
             } else {
                 bitmap
             }

@@ -18,5 +18,4 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.nexus.publish)
 }

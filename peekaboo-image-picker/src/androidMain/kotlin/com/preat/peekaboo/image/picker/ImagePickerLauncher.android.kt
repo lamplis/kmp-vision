@@ -31,8 +31,8 @@ actual fun rememberImagePickerLauncher(
     resizeOptions: ResizeOptions,
     filterOptions: FilterOptions,
     onResult: (List<ByteArray>) -> Unit,
-): ImagePickerLauncher {
-    return when (selectionMode) {
+): ImagePickerLauncher =
+    when (selectionMode) {
         SelectionMode.Single ->
             pickSingleImage(
                 coroutineScope = scope,
@@ -51,7 +51,6 @@ actual fun rememberImagePickerLauncher(
                 onResult = onResult,
             )
     }
-}
 
 @Composable
 private fun pickSingleImage(
@@ -67,7 +66,9 @@ private fun pickSingleImage(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { uri ->
-                uri?.let {
+                if (uri == null) {
+                    onResult(emptyList())
+                } else {
                     PeekabooImageResizer.resizeImageAsync(
                         context = context,
                         coroutineScope = coroutineScope,
@@ -121,6 +122,11 @@ private fun pickMultipleImages(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.PickMultipleVisualMedia(maxSelection),
             onResult = { uriList ->
+                if (uriList.isEmpty()) {
+                    onResult(emptyList())
+                    imagePickerLauncher?.markPhotoPickerInactive()
+                    return@rememberLauncherForActivityResult
+                }
                 val resizedImages = mutableListOf<ByteArray>()
                 uriList.forEach { uri ->
                     PeekabooImageResizer.resizeImageAsync(

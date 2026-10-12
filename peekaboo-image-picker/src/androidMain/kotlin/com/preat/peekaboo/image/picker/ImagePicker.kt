@@ -20,8 +20,8 @@ import android.os.Build
 import android.os.ext.SdkExtensions
 import android.provider.MediaStore
 
-internal fun isSystemPickerAvailable(): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+internal fun isSystemPickerAvailable(): Boolean =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         true
     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         // getExtension is seen as part of Android Tiramisu only while the SdkExtensions
@@ -30,7 +30,6 @@ internal fun isSystemPickerAvailable(): Boolean {
     } else {
         false
     }
-}
 
 @SuppressLint("NewApi", "ClassVerificationFailure")
 internal fun getMaxItems() =

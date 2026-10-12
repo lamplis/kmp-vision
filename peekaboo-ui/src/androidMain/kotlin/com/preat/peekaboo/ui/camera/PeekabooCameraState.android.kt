@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import java.io.ByteArrayOutputStream
 
 @Stable
 actual class PeekabooCameraState(
@@ -82,8 +83,8 @@ actual class PeekabooCameraState(
             onFrame: ((frame: ByteArray) -> Unit)?,
             onScannerFrame: ((frame: PeekabooCameraFrame) -> Unit)?,
             onCapture: (ByteArray?) -> Unit,
-        ): Saver<PeekabooCameraState, Int> {
-            return Saver(
+        ): Saver<PeekabooCameraState, Int> =
+            Saver(
                 save = {
                     it.cameraMode.id()
                 },
@@ -96,7 +97,6 @@ actual class PeekabooCameraState(
                     )
                 },
             )
-        }
     }
 }
 
@@ -106,15 +106,14 @@ actual fun rememberPeekabooCameraState(
     onFrame: ((frame: ByteArray) -> Unit)?,
     onScannerFrame: ((frame: PeekabooCameraFrame) -> Unit)?,
     onCapture: (ByteArray?) -> Unit,
-): PeekabooCameraState {
-    return rememberSaveable(
+): PeekabooCameraState =
+    rememberSaveable(
         saver = PeekabooCameraState.saver(onFrame, onScannerFrame, onCapture),
     ) { PeekabooCameraState(initialCameraMode, onFrame, onScannerFrame, onCapture) }.apply {
         this.onFrame = onFrame
         this.onScannerFrame = onScannerFrame
         this.onCapture = onCapture
     }
-}
 
 actual class PeekabooCameraFrame internal constructor(
     private val imageProxy: ImageProxy?,
@@ -159,6 +158,38 @@ actual class PeekabooCameraFrame internal constructor(
         released = true
     }
 
+    actual fun toJpeg(
+        quality: Double,
+        maxLongEdge: Int,
+    ): ByteArray? {
+        if (released || imageProxy == null) return null
+        val source = runCatching { bitmap }.getOrNull() ?: return null
+        val longEdge = maxOf(source.width, source.height)
+        val scaled =
+            if (longEdge > maxLongEdge && longEdge > 0) {
+                val scale = maxLongEdge.toFloat() / longEdge.toFloat()
+                Bitmap.createScaledBitmap(
+                    source,
+                    (source.width * scale).toInt().coerceAtLeast(1),
+                    (source.height * scale).toInt().coerceAtLeast(1),
+                    true,
+                )
+            } else {
+                source
+            }
+        return ByteArrayOutputStream().use { stream ->
+            scaled.compress(
+                Bitmap.CompressFormat.JPEG,
+                (quality.coerceIn(0.0, 1.0) * 100).toInt(),
+                stream,
+            )
+            if (scaled !== source) {
+                scaled.recycle()
+            }
+            stream.toByteArray()
+        }
+    }
+
     actual fun copyLumaThumbnail(maxLongEdge: Int): LumaThumbnail? {
         val proxy = imageProxy ?: return null
         if (released || proxy.planes.isEmpty() || proxy.width <= 0 || proxy.height <= 0) return null
@@ -189,8 +220,7 @@ actual class PeekabooCameraFrame internal constructor(
     }
 }
 
-actual fun metadataOnlyCameraFrame(metadata: PeekabooFrameMetadata): PeekabooCameraFrame =
-    PeekabooCameraFrame(metadata)
+actual fun metadataOnlyCameraFrame(metadata: PeekabooFrameMetadata): PeekabooCameraFrame = PeekabooCameraFrame(metadata)
 
 /**
  * CameraX [ImageProxy.toBitmap] returns a blank buffer on some vendor YUV streams.

@@ -70,6 +70,10 @@ actual fun rememberImagePickerLauncher(
                 picker.dismissViewControllerAnimated(flag = true, completion = null)
                 @Suppress("UNCHECKED_CAST")
                 val results = didFinishPicking as List<PHPickerResult>
+                if (results.isEmpty()) {
+                    onResult(emptyList())
+                    return
+                }
 
                 val dispatchGroup = dispatch_group_create()
                 val imageData = mutableListOf<ByteArray>()
@@ -79,23 +83,27 @@ actual fun rememberImagePickerLauncher(
                     result.itemProvider.loadDataRepresentationForTypeIdentifier(
                         typeIdentifier = "public.image",
                     ) { nsData, _ ->
+                        if (nsData == null) {
+                            dispatch_group_leave(dispatchGroup)
+                            return@loadDataRepresentationForTypeIdentifier
+                        }
+                        val originalByteSize = nsData.length.toLong()
                         scope.launch(Dispatchers.Main) {
-                            nsData?.let {
-                                val image = UIImage.imageWithData(it)
-                                val resizedImage =
-                                    image?.fitInto(
-                                        resizeOptions.width,
-                                        resizeOptions.height,
-                                        resizeOptions.resizeThresholdBytes,
-                                        resizeOptions.compressionQuality,
-                                        filterOptions,
-                                    )
-                                val bytes = resizedImage?.toByteArray(resizeOptions.compressionQuality)
-                                if (bytes != null) {
-                                    imageData.add(bytes)
-                                }
-                                dispatch_group_leave(dispatchGroup)
+                            val image = UIImage.imageWithData(nsData)
+                            val resizedImage =
+                                image?.fitInto(
+                                    resizeOptions.width,
+                                    resizeOptions.height,
+                                    resizeOptions.resizeThresholdBytes,
+                                    resizeOptions.compressionQuality,
+                                    filterOptions,
+                                    originalByteSize,
+                                )
+                            val bytes = resizedImage?.toByteArray(resizeOptions.compressionQuality)
+                            if (bytes != null) {
+                                imageData.add(bytes)
                             }
+                            dispatch_group_leave(dispatchGroup)
                         }
                     }
                 }
@@ -124,15 +132,16 @@ actual fun rememberImagePickerLauncher(
 }
 
 @OptIn(ExperimentalForeignApi::class)
-private fun UIImage.toByteArray(compressionQuality: Double): ByteArray {
+private fun UIImage.toByteArray(compressionQuality: Double): ByteArray? {
     val validCompressionQuality = compressionQuality.coerceIn(0.0, 1.0)
-    val jpegData = UIImageJPEGRepresentation(this, validCompressionQuality)!!
+    val jpegData = UIImageJPEGRepresentation(this, validCompressionQuality) ?: return null
     return ByteArray(jpegData.length.toInt()).apply {
         memcpy(this.refTo(0), jpegData.bytes, jpegData.length)
     }
 }
 
 @OptIn(ExperimentalForeignApi::class)
+@Suppress("UNUSED_PARAMETER")
 private fun UIImage.fitInto(
     maxWidth: Int,
     maxHeight: Int,
@@ -140,9 +149,9 @@ private fun UIImage.fitInto(
     @FloatRange(from = 0.0, to = 1.0)
     compressionQuality: Double,
     filterOptions: FilterOptions,
+    originalByteSize: Long,
 ): UIImage {
-    val imageData = this.toByteArray(compressionQuality)
-    if (imageData.size > resizeThresholdBytes) {
+    if (originalByteSize > resizeThresholdBytes) {
         val originalWidth = this.size.useContents { width }
         val originalHeight = this.size.useContents { height }
         val originalRatio = originalWidth / originalHeight
@@ -169,7 +178,7 @@ private fun UIImage.fitInto(
 
 @OptIn(ExperimentalForeignApi::class)
 private fun UIImage.resize(targetSize: CValue<CGSize>): UIImage {
-    UIGraphicsBeginImageContextWithOptions(targetSize, false, 0.0)
+    UIGraphicsBeginImageContextWithOptions(targetSize, false, 1.0)
     this.drawInRect(
         CGRectMake(
             0.0,
@@ -220,20 +229,26 @@ private fun applyFilterToUIImage(
     val filteredCIImage =
         when (filterOptions) {
             FilterOptions.GrayScale -> {
-                CIFilter.filterWithName("CIPhotoEffectNoir")?.apply {
-                    setValue(ciImage, forKey = "inputImage")
-                }?.outputImage
+                CIFilter
+                    .filterWithName("CIPhotoEffectNoir")
+                    ?.apply {
+                        setValue(ciImage, forKey = "inputImage")
+                    }?.outputImage
             }
             FilterOptions.Sepia -> {
-                CIFilter.filterWithName("CISepiaTone")?.apply {
-                    setValue(ciImage, forKey = "inputImage")
-                    setValue(0.8, forKey = "inputIntensity")
-                }?.outputImage
+                CIFilter
+                    .filterWithName("CISepiaTone")
+                    ?.apply {
+                        setValue(ciImage, forKey = "inputImage")
+                        setValue(0.8, forKey = "inputIntensity")
+                    }?.outputImage
             }
             FilterOptions.Invert -> {
-                CIFilter.filterWithName("CIColorInvert")?.apply {
-                    setValue(ciImage, forKey = "inputImage")
-                }?.outputImage
+                CIFilter
+                    .filterWithName("CIColorInvert")
+                    ?.apply {
+                        setValue(ciImage, forKey = "inputImage")
+                    }?.outputImage
             }
             FilterOptions.Default -> ciImage
         }

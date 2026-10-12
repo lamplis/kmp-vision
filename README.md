@@ -1,10 +1,10 @@
-# peekaboo
+# kmp-vision
 [![Kotlin](https://img.shields.io/badge/kotlin-1.9.23-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-v1.6.2-blue)](https://github.com/JetBrains/compose-multiplatform)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.onseok/peekaboo-image-picker?color=orange)](https://search.maven.org/search?q=g:io.github.onseok)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.lamplis/vision-text?color=orange)](https://central.sonatype.com/namespace/io.github.lamplis)
 [![Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[![Build](https://github.com/onseok/peekaboo/actions/workflows/ci_check.yml/badge.svg)](https://github.com/onseok/peekaboo/actions/workflows/ci_check.yml)
+[![Build](https://github.com/lamplis/kmp-vision/actions/workflows/ci_check.yml/badge.svg)](https://github.com/lamplis/kmp-vision/actions/workflows/ci_check.yml)
 ![badge-android](http://img.shields.io/badge/platform-android-6EDB8D.svg?style=flat)
 ![badge-ios](http://img.shields.io/badge/platform-ios-CDCDCD.svg?style=flat)
 [![Featured in androidweekly.net](https://img.shields.io/badge/Featured%20in%20androidweekly.net-Issue%20%23601-4998C2)](https://androidweekly.net/issues/issue-601)
@@ -31,11 +31,11 @@ In your `commonMain` configuration, add the desired dependency, either **`peekab
 ```kotlin
 commonMain {
     dependencies {
-        // peekaboo-ui
-        implementation("io.github.onseok:peekaboo-ui:$latest_version")
-
-        // peekaboo-image-picker
-        implementation("io.github.onseok:peekaboo-image-picker:$latest_version")
+        implementation("io.github.lamplis:vision-camera:0.6.0")
+        implementation("io.github.lamplis:vision-picker:0.6.0")
+        implementation("io.github.lamplis:vision-text:0.6.0")
+        implementation("io.github.lamplis:vision-infer:0.6.0")
+        implementation("io.github.lamplis:vision-session:0.6.0")
     }
 }
 ```
@@ -47,11 +47,14 @@ First, define the version in `libs.versions.toml`:
 
 ```toml
 [versions]
-peekaboo = "0.5.2"
+kmp-vision = "0.6.0"
 
 [libraries]
-peekaboo-ui = { module = "io.github.onseok:peekaboo-ui", version.ref = "peekaboo" }
-peekaboo-image-picker = { module = "io.github.onseok:peekaboo-image-picker", version.ref = "peekaboo" }
+vision-camera = { module = "io.github.lamplis:vision-camera", version.ref = "kmp-vision" }
+vision-picker = { module = "io.github.lamplis:vision-picker", version.ref = "kmp-vision" }
+vision-text = { module = "io.github.lamplis:vision-text", version.ref = "kmp-vision" }
+vision-infer = { module = "io.github.lamplis:vision-infer", version.ref = "kmp-vision" }
+vision-session = { module = "io.github.lamplis:vision-session", version.ref = "kmp-vision" }
 ```
 
 Then, in your `commonMain` configuration, reference the defined version:
@@ -59,11 +62,11 @@ Then, in your `commonMain` configuration, reference the defined version:
 ```kotlin
 commonMain {
     dependencies {
-        // peekaboo-ui
-        implementation(libs.peekaboo.ui)
-
-        // peekaboo-image-picker
-        implementation(libs.peekaboo.image.picker)
+        implementation(libs.vision.camera)
+        implementation(libs.vision.picker)
+        implementation(libs.vision.text)
+        implementation(libs.vision.infer)
+        implementation(libs.vision.session)
     }
 }
 ```
@@ -72,8 +75,11 @@ commonMain {
 
 | Name                    | Description                                                                 |
 |-------------------------|-----------------------------------------------------------------------------|
-| `peekaboo-ui` |Provides user-friendly UI elements, including a custom camera view for easy image capture, suitable for both `iOS` and `Android` platforms. |
-| `peekaboo-image-picker` | Simplifies the process of selecting single or multiple images both in `iOS` and `Android` platforms. |
+| `vision-camera` | Camera preview, torch, `onScannerFrame`, and `PeekabooCameraFrame.toJpeg()`. |
+| `vision-picker` | System image picker. Cancel calls `onResult` with an empty list. |
+| `vision-text` | `createTextRecognizer()` returns text lines with top-left boxes. |
+| `vision-infer` | `loadVisionInterpreter`: `.tflite` bytes on Android, `.mlmodelc` path on iOS. Returns raw tensors. |
+| `vision-session` | `LiveFramePump` and `VisionOverlay` for live results on the preview. |
 
 <br/>
 
@@ -83,7 +89,7 @@ In order to access the camera on iOS devices, it's essential to include a specif
 
 Here's the key-value pair you should add to your `Info.plist`:
 ```xml
-<key>Privacy - Camera Usage Description</key>
+<key>NSCameraUsageDescription</key>
 <string>This app uses camera for capturing photos.</string>
 ```
 
@@ -103,6 +109,9 @@ fun CustomCameraView() {
             // Custom UI content for permission denied scenario
         },
     )
+    Button(onClick = state::capture) {
+        Text("Capture")
+    }
 }
 ```
 

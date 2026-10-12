@@ -35,7 +35,9 @@ expect fun rememberImagePickerLauncher(
 sealed class SelectionMode {
     data object Single : SelectionMode()
 
-    data class Multiple(val maxSelection: Int = INFINITY) : SelectionMode()
+    data class Multiple(
+        val maxSelection: Int = INFINITY,
+    ) : SelectionMode()
 
     companion object {
         const val INFINITY = 0

@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -21,25 +21,9 @@ jobs:
           distribution: zulu
           cache: gradle
 
-      - name: Gradle cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 'latest-stable'
-
-      - uses: hendrikmuhs/ccache-action@v1
-        name: Xcode Compile Cache
-        with:
-          key: ${{ runner.os }}-v2 # makes a unique key w/related restore key internally
-          max-size: 1500M
 
       - name: Run xcodebuild
         run: |

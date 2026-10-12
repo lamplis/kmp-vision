@@ -1,0 +1,11 @@
+language = Objective-C
+headers = visionalloc.h
+compilerOpts = -framework CoreML
+linkerOpts = -framework CoreML
+package = visionalloc
+---
+#include "visionalloc.h"
+
+MLMultiArray *_Nullable VisionAllocMultiArray(NSArray *_Nonnull shape) {
+    return [[MLMultiArray alloc] initWithShape:shape dataType:MLMultiArrayDataTypeFloat32 error:nil];
+}

@@ -157,16 +157,16 @@ actual fun PeekabooGallery(
 private fun getOriginalImageByteArray(
     context: Context,
     uri: Uri,
-): ByteArray? {
-    return context.contentResolver.openInputStream(uri)?.use { inputStream ->
+): ByteArray? =
+    context.contentResolver.openInputStream(uri)?.use { inputStream ->
         val bitmap = BitmapFactory.decodeStream(inputStream)
         val rotatedBitmap = rotateImageIfRequired(context, bitmap, uri)
 
-        ByteArrayOutputStream().apply {
-            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, this)
-        }.toByteArray()
+        ByteArrayOutputStream()
+            .apply {
+                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, this)
+            }.toByteArray()
     }
-}
 
 private fun rotateImageIfRequired(
     context: Context,
@@ -200,6 +200,4 @@ private fun rotateImageIfRequired(
     return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 }
 
-private fun ByteArray.toBitmap(): Bitmap {
-    return BitmapFactory.decodeByteArray(this, 0, this.size)
-}
+private fun ByteArray.toBitmap(): Bitmap = BitmapFactory.decodeByteArray(this, 0, this.size)

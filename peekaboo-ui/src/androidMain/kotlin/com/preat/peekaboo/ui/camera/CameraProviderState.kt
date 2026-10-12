@@ -26,11 +26,10 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 @Composable
-fun loadCameraProvider(context: Context): State<ProcessCameraProvider?> {
-    return produceState<ProcessCameraProvider?>(null, context) {
+fun loadCameraProvider(context: Context): State<ProcessCameraProvider?> =
+    produceState<ProcessCameraProvider?>(null, context) {
         value =
             withContext(Executors.newSingleThreadExecutor().asCoroutineDispatcher()) {
                 ProcessCameraProvider.getInstance(context).await()
             }
     }
-}

@@ -66,8 +66,10 @@ internal object PeekabooImageResizer {
     ): Int =
         context.contentResolver.query(uri, null, null, null, null).use { cursor ->
             val sizeIndex = cursor?.getColumnIndex(OpenableColumns.SIZE)
-            cursor?.moveToFirst()
-            sizeIndex?.let { cursor.getInt(it) } ?: 0
+            if (cursor == null || sizeIndex == null || sizeIndex < 0 || !cursor.moveToFirst()) {
+                return 0
+            }
+            cursor.getInt(sizeIndex)
         }
 
     private fun getOriginalImageByteArray(
@@ -75,12 +77,13 @@ internal object PeekabooImageResizer {
         uri: Uri,
     ): ByteArray? {
         return context.contentResolver.openInputStream(uri)?.use { inputStream ->
-            val bitmap = BitmapFactory.decodeStream(inputStream)
+            val bitmap = BitmapFactory.decodeStream(inputStream) ?: return null
             val rotatedBitmap = rotateImageIfRequired(context, bitmap, uri)
 
-            ByteArrayOutputStream().apply {
-                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, this)
-            }.toByteArray()
+            ByteArrayOutputStream()
+                .apply {
+                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, this)
+                }.toByteArray()
         }
     }
 
@@ -119,7 +122,8 @@ internal object PeekabooImageResizer {
                     options.inSampleSize = inSampleSize
 
                     context.contentResolver.openInputStream(uri)?.use { scaledInputStream ->
-                        BitmapFactory.decodeStream(scaledInputStream, null, options)
+                        BitmapFactory
+                            .decodeStream(scaledInputStream, null, options)
                             ?.also { bitmap ->
                                 PeekabooBitmapCache.instance.put(resizeCacheKey, bitmap)
                             }
@@ -162,10 +166,26 @@ internal object PeekabooImageResizer {
             FilterOptions.Invert -> {
                 colorMatrix.set(
                     floatArrayOf(
-                        -1f, 0f, 0f, 0f, 255f,
-                        0f, -1f, 0f, 0f, 255f,
-                        0f, 0f, -1f, 0f, 255f,
-                        0f, 0f, 0f, 1f, 0f,
+                        -1f,
+                        0f,
+                        0f,
+                        0f,
+                        255f,
+                        0f,
+                        -1f,
+                        0f,
+                        0f,
+                        255f,
+                        0f,
+                        0f,
+                        -1f,
+                        0f,
+                        255f,
+                        0f,
+                        0f,
+                        0f,
+                        1f,
+                        0f,
                     ),
                 )
             }
@@ -176,14 +196,15 @@ internal object PeekabooImageResizer {
                 colorFilter = ColorMatrixColorFilter(colorMatrix)
             }
 
-        return Bitmap.createBitmap(
-            originalBitmap.width,
-            originalBitmap.height,
-            Bitmap.Config.ARGB_8888,
-        ).also { bitmap ->
-            val canvas = Canvas(bitmap)
-            canvas.drawBitmap(originalBitmap, 0f, 0f, paint)
-        }
+        return Bitmap
+            .createBitmap(
+                originalBitmap.width,
+                originalBitmap.height,
+                Bitmap.Config.ARGB_8888,
+            ).also { bitmap ->
+                val canvas = Canvas(bitmap)
+                canvas.drawBitmap(originalBitmap, 0f, 0f, paint)
+            }
     }
 
     private fun rotateImageIfRequired(

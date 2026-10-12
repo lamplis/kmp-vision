@@ -15,7 +15,11 @@
  */
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 pluginManagement {
-    includeBuild("convention-plugins")
+    plugins {
+        id("com.android.kotlin.multiplatform.library") version "9.4.1"
+        id("com.android.application") version "9.4.1"
+        id("com.android.library") version "9.4.1"
+    }
     repositories {
         google {
             mavenContent {
@@ -37,10 +41,13 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "peekaboo"
+rootProject.name = "kmp-vision"
 include(
     ":peekaboo-ui",
     ":peekaboo-image-picker",
+    ":vision-text",
+    ":vision-infer",
+    ":vision-session",
     ":sample:android",
     ":sample:common",
 )

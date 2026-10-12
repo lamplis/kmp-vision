@@ -15,10 +15,42 @@
  */
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    id("com.vanniktech.maven.publish") version "0.37.0"
+}
+
+mavenPublishing {
+    coordinates(project.group.toString(), "vision-picker", project.version.toString())
+    publishToMavenCentral(automaticRelease = true)
+    signAllPublications()
+    pom {
+        name.set("vision-picker")
+        description.set("Image picker for Compose Multiplatform on Android and iOS.")
+        url.set("https://github.com/lamplis/kmp-vision")
+        licenses {
+            license {
+                name.set("Apache-2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("onseok")
+                name.set("onseok")
+            }
+            developer {
+                id.set("lamplis")
+                name.set("lamplis")
+            }
+        }
+        scm {
+            connection.set("scm:git:https://github.com/lamplis/kmp-vision.git")
+            url.set("https://github.com/lamplis/kmp-vision")
+        }
+    }
 }
 
 kotlin {

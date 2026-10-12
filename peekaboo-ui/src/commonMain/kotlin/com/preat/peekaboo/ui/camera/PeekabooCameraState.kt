@@ -53,6 +53,11 @@ expect class PeekabooCameraFrame {
     fun releaseAfterAsyncAnalysis()
 
     fun copyLumaThumbnail(maxLongEdge: Int): LumaThumbnail?
+
+    fun toJpeg(
+        quality: Double = 0.8,
+        maxLongEdge: Int = 1280,
+    ): ByteArray?
 }
 
 expect fun metadataOnlyCameraFrame(metadata: PeekabooFrameMetadata): PeekabooCameraFrame

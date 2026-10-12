@@ -22,7 +22,9 @@ import com.preat.peekaboo.ui.gallery.model.PeekabooMediaImage
 import com.preat.peekaboo.ui.gallery.util.createCursor
 import com.preat.peekaboo.ui.gallery.util.fetchPagePicture
 
-internal class PeekabooGalleryRepositoryImpl(private val context: Context) : PeekabooGalleryRepository {
+internal class PeekabooGalleryRepositoryImpl(
+    private val context: Context,
+) : PeekabooGalleryRepository {
     override suspend fun getCount(): Int {
         val cursor = context.createCursor(Int.MAX_VALUE, 0) ?: return 0
         val count = cursor.count
@@ -30,11 +32,8 @@ internal class PeekabooGalleryRepositoryImpl(private val context: Context) : Pee
         return count
     }
 
-    override suspend fun getByOffset(offset: Int): PeekabooMediaImage? {
-        return context.fetchPagePicture(1, offset).firstOrNull()
-    }
+    override suspend fun getByOffset(offset: Int): PeekabooMediaImage? = context.fetchPagePicture(1, offset).firstOrNull()
 
-    override fun getPicturePagingSource(): PagingSource<Int, PeekabooMediaImage> {
-        return PeekabooGalleryDataSource { limit, offset -> context.fetchPagePicture(limit, offset) }
-    }
+    override fun getPicturePagingSource(): PagingSource<Int, PeekabooMediaImage> =
+        PeekabooGalleryDataSource { limit, offset -> context.fetchPagePicture(limit, offset) }
 }
