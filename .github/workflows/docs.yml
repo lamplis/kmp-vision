@@ -9,6 +9,7 @@ on:
       - "requirements-docs.txt"
       - ".github/workflows/docs.yml"
       - "README.md"
+      - "tools/check_docs.py"
   workflow_dispatch:
 
 permissions:
@@ -29,7 +30,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements-docs.txt
-      - run: mkdocs build
+      - run: mkdocs build --strict
+      - run: python tools/check_docs.py site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

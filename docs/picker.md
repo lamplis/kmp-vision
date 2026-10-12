@@ -2,7 +2,9 @@
 
 `io.github.lamplis:vision-picker` is built by `:peekaboo-image-picker`. The Kotlin package is `com.preat.peekaboo.image.picker`. `rememberImagePickerLauncher` opens the system photo picker for `SelectionMode.Single` or `SelectionMode.Multiple`. The selected images arrive in `onResult`. Dismissing the picker calls `onResult` with an empty list. `ResizeOptions` and `FilterOptions` are available. The samples below show both.
 
-![Photo picker](images/picker.jpg)
+![System image picker opened from Vision Lab on Android](images/picker.png){ .guide-preview }
+
+*Captured from [Vision Lab](tutorial.md), the runnable tutorial.*
 
 ## Image resizing
 
@@ -61,10 +63,6 @@ While resizing, the aspect ratio of the original images is preserved. The final 
 
 `vision-picker` offers filter options for selected images on Android and iOS.
 
-| Default | GrayScale | Sepia | Invert |
-| --- | --- | --- | --- |
-| <img src="https://github.com/TEAM-PREAT/peekaboo/assets/76798309/2f47becf-1512-47e2-83c1-2120d58d6d11" width="300" height="700"> | <img src="https://github.com/TEAM-PREAT/peekaboo/assets/76798309/3c864a79-83df-451c-91e1-1e71fbdb3066" width="300" height="700"> | <img src="https://github.com/TEAM-PREAT/peekaboo/assets/76798309/52dee8e8-1979-4725-bfca-12af1b3c4b3d" width="300" height="700"> | <img src="https://github.com/TEAM-PREAT/peekaboo/assets/76798309/cbe927d1-55c2-40c5-ae35-2be81997e9fb" width="300" height="700"> |
-
 Set the `filterOptions` parameter in `rememberImagePickerLauncher`:
 
 ```kotlin
@@ -87,3 +85,10 @@ The default filter option is `Default`, which applies no filter. Choose `GraySca
 ```kotlin
 val imageBitmap = byteArray.toImageBitmap()
 ```
+
+<details class="animation">
+<summary>View the picker walkthrough</summary>
+<img src="../images/tutorial-picker.gif" alt="Vision Lab opens the native Android image picker" loading="lazy" class="guide-preview">
+</details>
+
+*The GIF sequences actual captured states with timing edited for readability.*

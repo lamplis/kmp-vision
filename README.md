@@ -1,50 +1,28 @@
-# kmp-vision
-[![Kotlin](https://img.shields.io/badge/kotlin-2.4.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
-[![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-v1.12.1-blue)](https://github.com/JetBrains/compose-multiplatform)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.lamplis/vision-ocr?color=orange)](https://central.sonatype.com/namespace/io.github.lamplis)
-[![Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Build](https://github.com/lamplis/kmp-vision/actions/workflows/ci_check.yml/badge.svg)](https://github.com/lamplis/kmp-vision/actions/workflows/ci_check.yml)
-![badge-android](http://img.shields.io/badge/platform-android-6EDB8D.svg?style=flat)
-![badge-ios](http://img.shields.io/badge/platform-ios-CDCDCD.svg?style=flat)
+# KMP-Vision
 
-On-device camera, OCR, and models for Compose Multiplatform on Android and iOS.
+**Build your vision experience once. Bring it to Android and iOS.**
 
-## Jump start
+Camera previews, on-device OCR, image picking, visual overlays, and model inference for Kotlin and Compose Multiplatform. Share your application logic and Compose UI, with native implementations underneath.
 
-One camera dependency draws the preview and the boxes. `LiveFramePump` throttles frames. `createOcr().recognize(jpeg)` reads each JPEG. `VisionOverlay` paints the lines. `strokeColor`, `strokeWidth`, and `labelColor` restyle the chrome. Boxes are top-left: `left`, `top`, `right`, `bottom`.
+[Documentation](https://lamplis.github.io/kmp-vision/) · [Run the tutorial](tutorial/README.md) · [Installation](https://lamplis.github.io/kmp-vision/install/)
 
-```kotlin
-val pump = LiveFramePump { jpeg ->
-    createOcr().recognize(jpeg).flatMap { line ->
-        val box = NormalizedRect(line.boundingBox.left, line.boundingBox.top, line.boundingBox.right, line.boundingBox.bottom)
-        listOf(OverlayShape.Rect(box), OverlayShape.Label(box, line.text))
-    }
-}
-val state = rememberPeekabooCameraState(
-    onScannerFrame = { frame ->
-        scope.launch { shapes = pump.onFrame(frame, nowMs) }
-    },
-    onCapture = {},
-)
-Box(Modifier.fillMaxSize()) {
-    PeekabooCamera(
-        state = state,
-        modifier = Modifier.fillMaxSize(),
-        permissionDeniedContent = {},
-    )
-    VisionOverlay(
-        shapes = shapes,
-        modifier = Modifier.fillMaxSize(),
-        strokeColor = Color(0xFF38D9A9),
-        strokeWidth = 3.dp,
-        labelColor = Color.White,
-    )
-}
-```
+![Vision Lab running on Android and iOS](docs/images/tutorial-platforms.png)
 
-![Live OCR on the camera](docs/images/live.gif)
+Real screenshots from the shared Vision Lab tutorial, using ML Kit on Android and Apple Vision on iOS.
 
-Documentation: https://lamplis.github.io/kmp-vision/
+## Choose your building blocks
+
+- **Camera:** Compose preview, still capture, camera controls, and analysis frames.
+- **OCR:** encoded image bytes to recognized text and normalized bounding boxes.
+- **Overlays:** styleable rectangles and labels over your content.
+- **Picker:** system image selection with resizing and filters.
+- **Inference:** a shared API for compatible LiteRT and Core ML models.
+
+Platform permissions, application setup, and inference model assets still need platform-specific configuration. See the documentation for supported behavior and integration requirements.
+
+## Built in the open
+
+Maintained by [lamplis](https://github.com/lamplis). KMP-Vision builds on Peekaboo by onseok and contributors; the OCR approach also draws inspiration from Amirhossein Ijadi’s Compose Multiplatform Text Recognition. See [project origins and contribution guidance](https://lamplis.github.io/kmp-vision/contributing/).
 
 ## License
 

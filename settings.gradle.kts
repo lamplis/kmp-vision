@@ -48,6 +48,8 @@ include(
     ":vision-overlay",
     ":vision-ocr",
     ":vision-infer",
+    ":tutorial:android",
+    ":tutorial:common",
     ":sample:android",
     ":sample:common",
 )

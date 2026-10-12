@@ -25,4 +25,8 @@ loadVisionInterpreter("", ModelFormat.Tflite, tfliteBytes)
 loadVisionInterpreter(mlmodelcPath, ModelFormat.CoreMl, null)
 ```
 
-![Model on device](images/model.jpg)
+![Model packaging diagram for Android and iOS](images/model-pipeline.svg)
+
+## Scope and integration
+
+The diagram describes the model-loading path; it is not an inference screenshot. Vision Lab currently demonstrates OCR and overlays and does not bundle an inference model. You supply a compatible model, its preprocessing, and interpretation of output tensors. ONNX conversion depends on supported operators and the converter toolchain. Validate your model on both platforms and measure performance on your target devices.

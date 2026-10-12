@@ -12,4 +12,10 @@ lines.forEach { line ->
 recognizer.close()
 ```
 
-![OCR lines](images/ocr.jpg)
+![Vision Lab recognizing the bundled image on Android](images/tutorial-ocr.png){ .guide-preview }
+
+*Captured from [Vision Lab](tutorial.md), the runnable tutorial.*
+
+## Platform behavior
+
+Android currently uses ML Kit’s Latin text recognizer; the `recognitionLanguages` argument is ignored on Android. iOS passes language preferences to Apple Vision. Text segmentation, confidence values, and recognized output may differ between engines. The tutorial screenshots show these differences using the same input image.

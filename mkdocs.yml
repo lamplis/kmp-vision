@@ -1,12 +1,14 @@
-site_name: kmp-vision
+site_name: KMP-Vision
 site_url: https://lamplis.github.io/kmp-vision/
-site_description: On-device camera, OCR, and models for Compose Multiplatform on Android and iOS.
+site_description: Build shared camera and vision experiences for Android and iOS with Kotlin and Compose Multiplatform.
 repo_url: https://github.com/lamplis/kmp-vision
 repo_name: lamplis/kmp-vision
 docs_dir: docs
 
 theme:
   name: material
+  logo: images/mark.svg
+  favicon: images/mark.svg
   palette:
     - scheme: default
       primary: indigo
@@ -27,7 +29,8 @@ theme:
     - search.suggest
 
 nav:
-  - Jump start: index.md
+  - Overview: index.md
+  - Tutorial: tutorial.md
   - Install: install.md
   - Camera: camera.md
   - Overlay: overlay.md
@@ -35,3 +38,18 @@ nav:
   - OCR: ocr.md
   - Models: models.md
   - Camera and picker: camera-and-picker.md
+  - Contributing: contributing.md
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+
+copyright: KMP-Vision · Open source under Apache-2.0
