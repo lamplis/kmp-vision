@@ -1,4 +1,4 @@
-onnx==1.17.0
+onnx==1.23.2
 onnx2tf==1.26.9
 tensorflow==2.18.0
 coremltools==8.2
