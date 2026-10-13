@@ -1,13 +1,9 @@
 name: iOS Build
 
 on:
-  push:
-    branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-  pull_request:
-    paths-ignore:
-      - '**.md'
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   build-ios:
@@ -28,4 +24,4 @@ jobs:
       - name: Run xcodebuild
         run: |
           cd sample/ios
-          xcodebuild -scheme peekaboo -sdk iphonesimulator
+          xcodebuild -project VisionSample.xcodeproj -scheme VisionSample -sdk iphonesimulator

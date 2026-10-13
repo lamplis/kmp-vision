@@ -1,15 +1,8 @@
 name: Docs
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "docs/**"
-      - "mkdocs.yml"
-      - "requirements-docs.txt"
-      - ".github/workflows/docs.yml"
-      - "README.md"
-      - "tools/check_docs.py"
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
