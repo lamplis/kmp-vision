@@ -1,7 +1,7 @@
 [versions]
 agp = "9.4.1"
 kotlin = "2.4.21"
-kotlinx-coroutines = "1.10.2"
+kotlinx-coroutines = "1.11.0"
 compose = "1.12.1"
 compose-ui = "1.7.3"
 compose-foundation = "1.7.3"
