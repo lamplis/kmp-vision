@@ -18,6 +18,7 @@ package io.github.lamplis.vision.camera
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +50,7 @@ import platform.AVFoundation.AVCaptureDeviceInput
 import platform.AVFoundation.AVCaptureDeviceInput.Companion.deviceInputWithDevice
 import platform.AVFoundation.AVCaptureDevicePositionBack
 import platform.AVFoundation.AVCaptureDevicePositionFront
+import platform.AVFoundation.AVCaptureDeviceRotationCoordinator
 import platform.AVFoundation.AVCaptureDeviceTypeBuiltInDualCamera
 import platform.AVFoundation.AVCaptureDeviceTypeBuiltInDualWideCamera
 import platform.AVFoundation.AVCaptureDeviceTypeBuiltInDuoCamera
@@ -70,6 +72,7 @@ import platform.AVFoundation.AVCaptureVideoDataOutputSampleBufferDelegateProtoco
 import platform.AVFoundation.AVCaptureVideoOrientationLandscapeLeft
 import platform.AVFoundation.AVCaptureVideoOrientationLandscapeRight
 import platform.AVFoundation.AVCaptureVideoOrientationPortrait
+import platform.AVFoundation.AVCaptureVideoOrientationPortraitUpsideDown
 import platform.AVFoundation.AVCaptureVideoPreviewLayer
 import platform.AVFoundation.AVLayerVideoGravityResizeAspect
 import platform.AVFoundation.AVLayerVideoGravityResizeAspectFill
@@ -100,13 +103,12 @@ import platform.Foundation.NSData
 import platform.Foundation.NSError
 import platform.Foundation.NSNotification
 import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSProcessInfo
 import platform.Foundation.NSSelectorFromString
 import platform.Foundation.dataWithBytes
 import platform.QuartzCore.CATransaction
 import platform.QuartzCore.kCATransactionDisableActions
 import platform.UIKit.UIColor
-import platform.UIKit.UIDevice
-import platform.UIKit.UIDeviceOrientation
 import platform.UIKit.UIGraphicsBeginImageContextWithOptions
 import platform.UIKit.UIGraphicsEndImageContext
 import platform.UIKit.UIGraphicsGetImageFromCurrentImageContext
@@ -131,6 +133,10 @@ private val deviceTypes =
         AVCaptureDeviceTypeBuiltInDuoCamera,
     )
 
+/**
+ * Position is the selection this SDK can compile. A fold can point that lens the
+ * other way; callers re-query when the preview size changes.
+ */
 private fun preferredCamera(position: Long): AVCaptureDevice? =
     (
         discoverySessionWithDeviceTypes(
@@ -214,41 +220,43 @@ private fun BoxScope.AuthorizedCamera(
     onCapture: (byteArray: ByteArray?) -> Unit,
 ) {
     var cameraReady by remember { mutableStateOf(false) }
-    val camera: AVCaptureDevice? =
-        remember {
-            preferredCamera(
-                position =
-                    when (cameraMode) {
-                        CameraMode.Front -> AVCaptureDevicePositionFront
-                        CameraMode.Back -> AVCaptureDevicePositionBack
-                    },
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val camera: AVCaptureDevice? =
+            remember(cameraMode, maxWidth, maxHeight) {
+                preferredCamera(
+                    position =
+                        when (cameraMode) {
+                            CameraMode.Front -> AVCaptureDevicePositionFront
+                            CameraMode.Back -> AVCaptureDevicePositionBack
+                        },
+                )
+            }
+
+        if (camera != null) {
+            RealDeviceCamera(
+                camera = camera,
+                onCameraReady = { cameraReady = true },
+                onCameraStopped = { cameraReady = false },
+                captureIcon = captureIcon,
+                convertIcon = convertIcon,
+                progressIndicator = progressIndicator,
+                onCapture = onCapture,
+            )
+        } else {
+            Text(
+                "Camera is not available on simulator. Please try to run on a real iOS device.",
+                color = Color.White,
             )
         }
 
-    if (camera != null) {
-        RealDeviceCamera(
-            camera = camera,
-            onCameraReady = { cameraReady = true },
-            onCameraStopped = { cameraReady = false },
-            captureIcon = captureIcon,
-            convertIcon = convertIcon,
-            progressIndicator = progressIndicator,
-            onCapture = onCapture,
-        )
-    } else {
-        Text(
-            "Camera is not available on simulator. Please try to run on a real iOS device.",
-            color = Color.White,
-        )
-    }
-
-    if (!cameraReady) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black),
-        )
+        if (!cameraReady) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Black),
+            )
+        }
     }
 }
 
@@ -260,40 +268,42 @@ private fun AuthorizedCamera(
     previewScaleType: CameraPreviewScaleType = CameraPreviewScaleType.AspectFill,
     previewOrientationMode: CameraPreviewOrientationMode = CameraPreviewOrientationMode.FollowDevice,
 ) {
-    val camera: AVCaptureDevice? =
-        remember {
-            preferredCamera(
-                position =
-                    when (state.cameraMode) {
-                        CameraMode.Front -> AVCaptureDevicePositionFront
-                        CameraMode.Back -> AVCaptureDevicePositionBack
-                    },
+    BoxWithConstraints(modifier = modifier) {
+        val camera: AVCaptureDevice? =
+            remember(state.cameraMode, maxWidth, maxHeight) {
+                preferredCamera(
+                    position =
+                        when (state.cameraMode) {
+                            CameraMode.Front -> AVCaptureDevicePositionFront
+                            CameraMode.Back -> AVCaptureDevicePositionBack
+                        },
+                )
+            }
+
+        if (camera != null) {
+            RealDeviceCamera(
+                state = state,
+                camera = camera,
+                modifier = modifier,
+                captureAspectRatio = captureAspectRatio,
+                previewScaleType = previewScaleType,
+                previewOrientationMode = previewOrientationMode,
+            )
+        } else {
+            Text(
+                "Camera is not available on simulator. Please try to run on a real iOS device.",
+                color = Color.White,
             )
         }
 
-    if (camera != null) {
-        RealDeviceCamera(
-            state = state,
-            camera = camera,
-            modifier = modifier,
-            captureAspectRatio = captureAspectRatio,
-            previewScaleType = previewScaleType,
-            previewOrientationMode = previewOrientationMode,
-        )
-    } else {
-        Text(
-            "Camera is not available on simulator. Please try to run on a real iOS device.",
-            color = Color.White,
-        )
-    }
-
-    if (!state.isCameraReady) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black),
-        )
+        if (!state.isCameraReady) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Black),
+            )
+        }
     }
 }
 
@@ -379,7 +389,7 @@ private fun BoxScope.RealDeviceCamera(
     }
 
     val captureSession: AVCaptureSession =
-        remember {
+        remember(camera.uniqueID) {
             AVCaptureSession().also { captureSession ->
                 captureSession.sessionPreset = AVCaptureSessionPresetPhoto
                 val captureDeviceInput: AVCaptureDeviceInput =
@@ -411,34 +421,18 @@ private fun BoxScope.RealDeviceCamera(
             @Suppress("UNUSED_PARAMETER")
             @ObjCAction
             fun orientationDidChange(arg: NSNotification) {
-                val cameraConnection = cameraPreviewLayer.connection
-                if (cameraConnection != null) {
-                    actualOrientation =
-                        when (UIDevice.currentDevice.orientation) {
-                            UIDeviceOrientation.UIDeviceOrientationPortrait ->
-                                AVCaptureVideoOrientationPortrait
-
-                            UIDeviceOrientation.UIDeviceOrientationLandscapeLeft ->
-                                AVCaptureVideoOrientationLandscapeRight
-
-                            UIDeviceOrientation.UIDeviceOrientationLandscapeRight ->
-                                AVCaptureVideoOrientationLandscapeLeft
-
-                            UIDeviceOrientation.UIDeviceOrientationPortraitUpsideDown ->
-                                AVCaptureVideoOrientationPortrait
-
-                            else -> cameraConnection.videoOrientation
-                        }
-                    cameraConnection.videoOrientation = actualOrientation
-                }
-                capturePhotoOutput
-                    .connectionWithMediaType(AVMediaTypeVideo)
-                    ?.videoOrientation = actualOrientation
+                applyVideoOrientation(
+                    cameraPreviewLayer = cameraPreviewLayer,
+                    capturePhotoOutput = capturePhotoOutput,
+                    forcedOrientation = null,
+                )
+                actualOrientation =
+                    cameraPreviewLayer.connection?.videoOrientation ?: actualOrientation
             }
         }
 
         val listener = OrientationListener()
-        val notificationName = platform.UIKit.UIDeviceOrientationDidChangeNotification
+        val notificationName = "UIWindowSceneDidUpdateCoordinateSpaceNotification"
         NSNotificationCenter.defaultCenter.addObserver(
             observer = listener,
             selector =
@@ -465,6 +459,13 @@ private fun BoxScope.RealDeviceCamera(
             cameraContainer.previewLayer = cameraPreviewLayer
             cameraContainer.layer.addSublayer(cameraPreviewLayer)
             cameraPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+            cameraContainer.onLayout = {
+                applyVideoOrientation(
+                    cameraPreviewLayer = cameraPreviewLayer,
+                    capturePhotoOutput = capturePhotoOutput,
+                    forcedOrientation = null,
+                )
+            }
             cameraContainer
         },
     )
@@ -544,7 +545,7 @@ private fun RealDeviceCamera(
     }
 
     val captureSession: AVCaptureSession =
-        remember {
+        remember(camera.uniqueID) {
             AVCaptureSession().also { captureSession ->
                 captureSession.sessionPreset =
                     if (state.onScannerFrame != null) {
@@ -614,7 +615,7 @@ private fun RealDeviceCamera(
                 forcedOrientation = previewOrientationMode.toForcedVideoOrientation(),
             )
         listener.applyCurrentOrientation()
-        val notificationName = platform.UIKit.UIDeviceOrientationDidChangeNotification
+        val notificationName = "UIWindowSceneDidUpdateCoordinateSpaceNotification"
         if (previewOrientationMode == CameraPreviewOrientationMode.FollowDevice) {
             NSNotificationCenter.defaultCenter.addObserver(
                 observer = listener,
@@ -644,6 +645,14 @@ private fun RealDeviceCamera(
             cameraContainer.previewLayer = cameraPreviewLayer
             cameraContainer.layer.addSublayer(cameraPreviewLayer)
             cameraPreviewLayer.videoGravity = previewScaleType.toAvLayerVideoGravity()
+            cameraContainer.onLayout = {
+                applyVideoOrientation(
+                    cameraPreviewLayer = cameraPreviewLayer,
+                    capturePhotoOutput = capturePhotoOutput,
+                    videoOutput = videoOutput,
+                    forcedOrientation = previewOrientationMode.toForcedVideoOrientation(),
+                )
+            }
             cameraContainer
         },
     )
@@ -661,6 +670,7 @@ private fun RealDeviceCamera(
 @OptIn(ExperimentalForeignApi::class)
 private class CameraContainerView : UIView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0)) {
     var previewLayer: AVCaptureVideoPreviewLayer? = null
+    var onLayout: (() -> Unit)? = null
 
     override fun layoutSubviews() {
         super.layoutSubviews()
@@ -669,6 +679,7 @@ private class CameraContainerView : UIView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0
         CATransaction.setValue(true, kCATransactionDisableActions)
         layer.frame = bounds
         CATransaction.commit()
+        onLayout?.invoke()
     }
 }
 
@@ -753,7 +764,7 @@ private fun applyVideoOrientation(
     forcedOrientation: Long?,
 ) {
     val cameraConnection = cameraPreviewLayer.connection
-    val actualOrientation = resolveVideoOrientation(cameraConnection, forcedOrientation)
+    val actualOrientation = resolveVideoOrientation(cameraConnection, cameraPreviewLayer, forcedOrientation)
     cameraConnection?.setVideoOrientationIfChanged(actualOrientation)
     capturePhotoOutput
         .connectionWithMediaType(AVMediaTypeVideo)
@@ -772,7 +783,7 @@ private fun applyVideoOrientation(
         forcedOrientation = forcedOrientation,
     )
     val cameraConnection = cameraPreviewLayer.connection
-    val actualOrientation = resolveVideoOrientation(cameraConnection, forcedOrientation)
+    val actualOrientation = resolveVideoOrientation(cameraConnection, cameraPreviewLayer, forcedOrientation)
     videoOutput
         .connectionWithMediaType(AVMediaTypeVideo)
         ?.setVideoOrientationIfChanged(actualOrientation)
@@ -780,24 +791,30 @@ private fun applyVideoOrientation(
 
 private fun resolveVideoOrientation(
     cameraConnection: AVCaptureConnection?,
+    previewLayer: AVCaptureVideoPreviewLayer,
     forcedOrientation: Long?,
-): Long =
-    forcedOrientation
-        ?: when (UIDevice.currentDevice.orientation) {
-            UIDeviceOrientation.UIDeviceOrientationPortrait ->
-                AVCaptureVideoOrientationPortrait
+): Long {
+    if (forcedOrientation != null) return forcedOrientation
+    val device = previewLayer.session?.activeInputDevice()
+    if (device != null && majorSystemVersion() >= 17) {
+        val coordinator = AVCaptureDeviceRotationCoordinator(device, previewLayer)
+        return orientationForHorizonAngle(coordinator.videoRotationAngleForHorizonLevelCapture)
+    }
+    return cameraConnection?.videoOrientation ?: AVCaptureVideoOrientationPortrait
+}
 
-            UIDeviceOrientation.UIDeviceOrientationLandscapeLeft ->
-                AVCaptureVideoOrientationLandscapeRight
+@OptIn(ExperimentalForeignApi::class)
+private fun majorSystemVersion(): Int = NSProcessInfo.processInfo.operatingSystemVersion.useContents { majorVersion.toInt() }
 
-            UIDeviceOrientation.UIDeviceOrientationLandscapeRight ->
-                AVCaptureVideoOrientationLandscapeLeft
-
-            UIDeviceOrientation.UIDeviceOrientationPortraitUpsideDown ->
-                AVCaptureVideoOrientationPortrait
-
-            else -> cameraConnection?.videoOrientation ?: AVCaptureVideoOrientationPortrait
-        }
+private fun orientationForHorizonAngle(angle: Double): Long {
+    val nearest = ((angle % 360.0) + 360.0) % 360.0
+    return when {
+        nearest >= 45.0 && nearest < 135.0 -> AVCaptureVideoOrientationPortrait
+        nearest >= 135.0 && nearest < 225.0 -> AVCaptureVideoOrientationLandscapeLeft
+        nearest >= 225.0 && nearest < 315.0 -> AVCaptureVideoOrientationPortraitUpsideDown
+        else -> AVCaptureVideoOrientationLandscapeRight
+    }
+}
 
 private fun AVCaptureConnection.setVideoOrientationIfChanged(orientation: Long) {
     if (videoOrientation != orientation) {
